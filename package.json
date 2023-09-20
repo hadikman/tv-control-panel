@@ -9,10 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.9",
+    "@mui/material": "^5.14.10",
+    "@tanstack/eslint-plugin-query": "^4.34.1",
+    "@tanstack/react-query": "^4.35.3",
+    "@tanstack/react-query-devtools": "^4.35.3",
     "eslint": "8.49.0",
     "eslint-config-next": "13.5.1",
     "next": "13.5.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "sass": "^1.67.0"
   }
 }

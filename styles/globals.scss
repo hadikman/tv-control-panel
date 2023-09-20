@@ -1,0 +1,14 @@
+@use 'normalize';
+@use 'variables';
+@use 'dark-mode';
+
+html,
+body {
+  background-color: var(--body-bkg-clr);
+  color: var(--font-clr);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

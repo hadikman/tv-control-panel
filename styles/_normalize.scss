@@ -1,0 +1,84 @@
+html {
+  direction: rtl;
+}
+
+body {
+  line-height: 1.5;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0.67rem 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+table {
+  caption-side: bottom;
+  border-collapse: collapse;
+}
+
+thead,
+tbody,
+tfoot,
+tr,
+td,
+th {
+  border: 1px solid #000;
+  padding: 0.5rem;
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+
+img,
+svg {
+  vertical-align: middle;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  -webkit-appearance: button;
+}
+
+textarea {
+  overflow: auto;
+  resize: vertical;
+}
+
+[type='number']::-webkit-inner-spin-button,
+[type='number']::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[hidden] {
+  display: none !important;
+}
