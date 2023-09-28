@@ -1,6 +1,5 @@
 import Head from 'next/head'
-import HomePage from 'components/home-page'
-import VAZIRMATN_FONT from 'util/share-font'
+import HomePage from 'components/page/page.home'
 
 export default function Home() {
   return (
@@ -12,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <HomePage className={VAZIRMATN_FONT.className} />
+      <HomePage />
     </>
   )
 }
