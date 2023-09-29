@@ -2,6 +2,16 @@ A TV control panel to manage TV zones
 
 ## Getting Started
 
+Install the projects dependencies:
+
+```bash
+npm i
+# or
+yarn install
+# or
+pnpm install
+```
+
 Run the development server:
 
 ```bash
