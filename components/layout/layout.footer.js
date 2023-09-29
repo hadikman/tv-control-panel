@@ -2,7 +2,11 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 function Footer({...props}) {
-  const year = new Date().toLocaleDateString('fa-IR', {year: 'numeric'})
+  const persianDate = new Date().toLocaleDateString('fa-IR', {
+    year: 'numeric',
+    month: 'long',
+    day: '2-digit',
+  })
 
   return (
     <Grid
@@ -19,7 +23,7 @@ function Footer({...props}) {
       {...props}
     >
       <Typography variant="caption">
-        داشبورد کنترل نمایش تلویزیون ها نسخه 1.0 - {year}
+        داشبورد کنترل نمایش تلویزیون ها نسخه 1.0 - {persianDate}
       </Typography>
     </Grid>
   )
