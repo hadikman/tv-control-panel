@@ -36,7 +36,7 @@ export function VideosTimeline({sx, ...props}) {
         <VideosGrid />
       </DndContext>
 
-      <Divider>
+      <Divider sx={{width: '85%', mx: 'auto'}}>
         <Chip label="نوار مدت زمان پخش" />
       </Divider>
 
