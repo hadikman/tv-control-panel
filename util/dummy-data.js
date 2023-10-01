@@ -49,23 +49,29 @@ export const zones = [
   },
 ]
 
-export const videos = [
+export const files = [
   {
-    name: 'ویدئو یک',
+    name: 'ویدئو یک.mp4',
     thumbnails: ['vid-screenshot-1', 'vid-screenshot-2', 'vid-screenshot-3'],
     duration: 870738,
     id: 1,
   },
   {
-    name: 'ویدئو دو',
+    name: 'ویدئو دو.mp4',
     thumbnails: ['vid-screenshot-4', 'vid-screenshot-5', 'vid-screenshot-6'],
     duration: 840738,
     id: 2,
   },
   {
-    name: 'ویدئو سه',
+    name: 'ویدئو سه.mp4',
     thumbnails: ['vid-screenshot-7', 'vid-screenshot-8', 'vid-screenshot-9'],
     duration: 860738,
     id: 3,
+  },
+  {
+    name: 'عکس یک.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 4,
   },
 ]
