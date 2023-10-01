@@ -15,14 +15,21 @@ import ListItemText from '@mui/material/ListItemText'
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import HomeIcon from '@mui/icons-material/Home'
 import GridViewIcon from '@mui/icons-material/GridView'
 import Logout from '@mui/icons-material/Logout'
 
 const menuListItems = [
   {
+    name: 'صفحه اصلی',
+    icon: <HomeIcon />,
+    href: '/',
+  },
+
+  {
     name: 'زون ها',
     icon: <GridViewIcon />,
-    href: '/',
+    href: '/zones',
   },
 ]
 
@@ -78,10 +85,10 @@ function Sidebar({...props}) {
 
       <Divider />
 
-      {menuListItems.map(({name, icon, href}) => (
-        <List key={name}>
-          <ListItem disablePadding>
-            <Link href={href}>
+      <List>
+        {menuListItems.map(({name, icon, href}) => (
+          <ListItem key={name} disablePadding>
+            <Link href={href} style={{width: '100%'}}>
               <ListItemButton>
                 <ListItemIcon sx={{...(!open && {minWidth: 0})}}>
                   {icon}
@@ -90,15 +97,22 @@ function Sidebar({...props}) {
               </ListItemButton>
             </Link>
           </ListItem>
-        </List>
-      ))}
+        ))}
+      </List>
 
-      <Box sx={{mt: 'auto'}}>
+      <Box sx={{p: 1, mt: 'auto'}}>
         <Divider />
 
-        <ListItemButton>
+        <ListItemButton
+          sx={{
+            bgcolor: 'error.dark',
+            color: 'error.contrastText',
+            borderRadius: 'var(--sm-corner)',
+            mt: 1,
+          }}
+        >
           {open && <ListItemText primary="خروج" sx={{m: 0}} />}
-          <ListItemIcon sx={{minWidth: 0}}>
+          <ListItemIcon sx={{minWidth: 0, color: 'error.contrastText'}}>
             <Logout />
           </ListItemIcon>
         </ListItemButton>

@@ -106,7 +106,7 @@ function ZonesCard({name, videosCount, slug}) {
         {isEmptyZone ? (
           <Button size="small">{name}</Button>
         ) : (
-          <Link className="link" href={`/${slug}`}>
+          <Link className="link" href={`/zones/${slug}`}>
             <Button size="small">{name}</Button>
           </Link>
         )}

@@ -62,7 +62,7 @@ function DropZone() {
   function handleSubmitOnUploadedFile(e) {
     e.preventDefault()
 
-    // TODO send a POST request
+    // TODO send a POST request to the API
     console.log(accpetedFileArr)
     setAcceptedFileArr([])
   }
