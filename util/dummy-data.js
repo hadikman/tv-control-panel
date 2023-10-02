@@ -75,3 +75,15 @@ export const files = [
     id: 4,
   },
 ]
+
+export const serverStateArr = [
+  {device: 'پردازنده مرکزی', performanceSpeed: 35},
+  {device: 'رم', performanceSpeed: 55},
+  {device: 'هارد دیسک', performanceSpeed: 85},
+]
+
+export const overallState = [
+  {title: 'تعداد کل زون‌ها', count: 6},
+  {title: 'تعداد کل استندها', count: 3},
+  {title: 'تعداد کل فایل‌های آنلاین', count: 64},
+]
