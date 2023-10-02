@@ -105,10 +105,13 @@ function Sidebar({...props}) {
 
         <ListItemButton
           sx={{
+            justifyContent: 'center',
             bgcolor: 'error.dark',
             color: 'error.contrastText',
             borderRadius: 'var(--sm-corner)',
             mt: 1,
+
+            ...(!open && {px: 0}),
           }}
         >
           {open && <ListItemText primary="خروج" sx={{m: 0}} />}
