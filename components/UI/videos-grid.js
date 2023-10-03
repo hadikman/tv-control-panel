@@ -13,6 +13,7 @@ import StopCircleIcon from '@mui/icons-material/StopCircle'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import AddAlarmIcon from '@mui/icons-material/AddAlarm'
 import DoneIcon from '@mui/icons-material/Done'
+import useClickOutsideElement from 'hook/useClickOutsideElement'
 import {files} from 'util/dummy-data'
 
 export function VideosGrid() {
@@ -81,6 +82,8 @@ function FilePreview({filename, thumbnails}) {
   const [isTimePicker, setIsTimePicker] = React.useState(false)
   const [seconds, setSeconds] = React.useState('')
   const [minutes, setMinutes] = React.useState('')
+  const {ref: clickOutsideElRef} = useClickOutsideElement(setIsTimePicker)
+
   const screenshotCount = thumbnails.length
 
   const isVideo = filename.endsWith('.mp4')
@@ -198,6 +201,7 @@ function FilePreview({filename, thumbnails}) {
             },
           }}
           onSubmit={handleOnSubmitTimePicker}
+          ref={clickOutsideElRef}
         >
           <Grid
             sx={{
