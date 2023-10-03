@@ -3,6 +3,7 @@ import {useDropzone} from 'react-dropzone'
 import {Form} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
@@ -68,7 +69,7 @@ function DropZone() {
   }
 
   return (
-    <Form onSubmit={handleSubmitOnUploadedFile}>
+    <Stack component="form" onSubmit={handleSubmitOnUploadedFile}>
       <Grid container spacing={1}>
         <Grid item xs={12} md={4}>
           <Box
@@ -181,7 +182,7 @@ function DropZone() {
           </Grid>
         </Grid>
       </Grid>
-    </Form>
+    </Stack>
   )
 }
 

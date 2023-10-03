@@ -1,8 +1,9 @@
 import * as React from 'react'
-import {Draggable, Form} from 'components/UI'
+import {Draggable} from 'components/UI'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import InputBase from '@mui/material/InputBase'
@@ -179,7 +180,8 @@ function FilePreview({filename, thumbnails}) {
           )}
         </>
       ) : isTimePicker ? (
-        <Form
+        <Stack
+          component="form"
           sx={{
             position: 'absolute',
             left: '50%',
@@ -224,7 +226,6 @@ function FilePreview({filename, thumbnails}) {
                 value={seconds}
                 placeholder="ثانیه"
                 inputProps={{maxLength: 2}}
-                // sx={{width: '1rem'}}
                 onChange={handleOnChangeSecond}
               />
 
@@ -244,7 +245,7 @@ function FilePreview({filename, thumbnails}) {
               <DoneIcon />
             </Button>
           </Grid>
-        </Form>
+        </Stack>
       ) : (
         <IconButton
           size="small"

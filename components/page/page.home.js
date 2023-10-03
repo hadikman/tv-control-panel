@@ -53,7 +53,7 @@ function HomePage({...props}) {
         sx={{alignItems: 'center', justifyContent: 'space-around', mt: 3}}
       >
         {overallState.map(({title, count}) => (
-          <Grid key={title} bgcolor="primary.main" xs={3}>
+          <Grid key={title} item bgcolor="primary.main" xs={3}>
             <Card>
               <CardContent>
                 <Typography variant="body2" color="text.secondary" gutterBottom>

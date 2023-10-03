@@ -2,6 +2,7 @@ import * as React from 'react'
 import {Form, ZonesCard} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
@@ -26,7 +27,8 @@ function ZonesPage({...props}) {
   return (
     <Box {...props}>
       <Box sx={{mb: 1, py: 3}}>
-        <Form
+        <Stack
+          component="form"
           sx={{flexDirection: 'row', alignItems: 'baseline', gap: 4}}
           onSubmit={handleFormSubmit}
         >
@@ -49,7 +51,7 @@ function ZonesPage({...props}) {
           >
             افزودن
           </Button>
-        </Form>
+        </Stack>
       </Box>
 
       <Divider />
