@@ -1,18 +1,22 @@
 import * as React from 'react'
 import {useDropzone} from 'react-dropzone'
-import {Form} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import ClearIcon from '@mui/icons-material/Clear'
+import CircularProgress from '@mui/material/CircularProgress'
+import SaveIcon from '@mui/icons-material/Save'
 
 function DropZone() {
   const [accpetedFileArr, setAcceptedFileArr] = React.useState([])
   const [rejectedFileArr, setRejectedFileArr] = React.useState([])
+  const [isSending, setIsSending] = React.useState(false)
+
+  const isAccpetedFileArr = accpetedFileArr.length > 0
+  const isRejectedFileArr = rejectedFileArr.length > 0
 
   const handleCloseAlert = () => {
     setRejectedFileArr([])
@@ -23,13 +27,17 @@ function DropZone() {
     const isRejectedFiles = rejectedFiles.length > 0
 
     if (isAcceptedFiles) {
-      setAcceptedFileArr(acceptedFiles)
+      setAcceptedFileArr(prevState => [
+        ...prevState,
+        ...acceptedFiles.map(file =>
+          Object.assign(file, {preview: URL.createObjectURL(file)}),
+        ),
+      ])
       setRejectedFileArr([])
     }
 
     if (isRejectedFiles) {
-      setRejectedFileArr(rejectedFiles)
-      setAcceptedFileArr([])
+      setRejectedFileArr(prevState => rejectedFiles.map(file => file))
     }
   }, [])
 
@@ -46,30 +54,41 @@ function DropZone() {
       'image/jpg': ['.jpg', '.jpeg'],
       'image/png': ['.png'],
     },
-    maxFiles: 1,
-    maxSize: 1024 * 1000 * 1000,
-    multiple: false,
+    maxFiles: 10,
+    maxSize: 1024 * 1000 * 1000 * 2,
     onDrop,
   })
 
   function handleRemoveFile(name) {
-    return () => {
-      setAcceptedFileArr(prevFile =>
-        prevFile.filter(file => file.name !== name),
-      )
-    }
+    setAcceptedFileArr(prevFile => prevFile.filter(file => file.name !== name))
   }
 
-  function handleSubmitOnUploadedFile(e) {
+  function handleOnSubmitOnUploadedFiles(e) {
     e.preventDefault()
+
+    setIsSending(true)
 
     // TODO send a POST request to the API
     console.log(accpetedFileArr)
-    setAcceptedFileArr([])
+
+    setTimeout(() => {
+      setIsSending(false)
+      setAcceptedFileArr([])
+    }, 1500)
+  }
+
+  function handleOnResetOnUploadedFiles(e) {
+    e.preventDefault()
+
+    setRejectedFileArr([])
   }
 
   return (
-    <Stack component="form" onSubmit={handleSubmitOnUploadedFile}>
+    <Stack
+      component="form"
+      onSubmit={handleOnSubmitOnUploadedFiles}
+      onReset={handleOnResetOnUploadedFiles}
+    >
       <Grid container spacing={1}>
         <Grid item xs={12} md={4}>
           <Box
@@ -114,45 +133,32 @@ function DropZone() {
               height: '100%',
               justifyContent: 'space-between',
               alignItems: 'center',
-              backgroundColor: '#fff',
+              bgcolor: '#fff',
               borderRadius: 'var(--sm-corner)',
-              px: 2,
             }}
           >
             {accpetedFileArr.map(({name}) => (
-              <React.Fragment key={name}>
-                <Grid item xs={10}>
-                  <Alert
-                    severity="success"
-                    sx={{fontSize: '0.875rem'}}
-                    action={
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="success"
-                        sx={{height: '100%'}}
-                        onClick={handleCloseAlert}
-                      >
-                        <CloudUploadIcon />
-                      </Button>
-                    }
-                  >
-                    <AlertTitle>{name}</AlertTitle>
-                    فایل مجاز می باشد. اکنون آپلود نمایید
-                  </Alert>
-                </Grid>
-
-                <Grid item xs={2} sx={{textAlign: 'center'}}>
-                  <Button
-                    size="small"
-                    color="error"
-                    sx={{height: '100%'}}
-                    onClick={handleRemoveFile(name)}
-                  >
-                    <ClearIcon />
-                  </Button>
-                </Grid>
-              </React.Fragment>
+              <Grid key={name} item xs={12}>
+                <Alert
+                  severity="success"
+                  sx={{alignItems: 'center', fontSize: '0.75rem'}}
+                  action={
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="error"
+                      sx={{p: 0}}
+                      onClick={() => handleRemoveFile(name)}
+                    >
+                      <ClearIcon />
+                    </Button>
+                  }
+                >
+                  <AlertTitle sx={{fontSize: '0.625rem', fontWeight: 700}}>
+                    {name}
+                  </AlertTitle>
+                </Alert>
+              </Grid>
             ))}
 
             {rejectedFileArr.map(({file, errors}) => (
@@ -179,6 +185,25 @@ function DropZone() {
                 </ul>
               </Alert>
             ))}
+
+            {(isAccpetedFileArr || isRejectedFileArr) && (
+              <Grid item xs={12} sx={{p: 1}}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  endIcon={
+                    isSending ? <CircularProgress size={18} /> : <SaveIcon />
+                  }
+                  disabled={isSending ? true : false}
+                  color={isRejectedFileArr ? 'error' : 'success'}
+                  type={isRejectedFileArr ? 'reset' : 'submit'}
+                >
+                  {isRejectedFileArr
+                    ? 'فایل‌های غیر مجاز را حذف نمایید.'
+                    : 'فایل‌ها مجاز می باشند. اکنون آپلود نمایید'}
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
