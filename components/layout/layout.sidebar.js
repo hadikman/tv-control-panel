@@ -18,6 +18,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import HomeIcon from '@mui/icons-material/Home'
 import GridViewIcon from '@mui/icons-material/GridView'
 import Logout from '@mui/icons-material/Logout'
+import PermMediaIcon from '@mui/icons-material/PermMedia'
 
 const menuListItems = [
   {
@@ -25,7 +26,11 @@ const menuListItems = [
     icon: <HomeIcon />,
     href: '/',
   },
-
+  {
+    name: 'رسانه ها',
+    icon: <PermMediaIcon />,
+    href: '/media',
+  },
   {
     name: 'زون ها',
     icon: <GridViewIcon />,
