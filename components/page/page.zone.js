@@ -1,4 +1,4 @@
-import {DropZone, VideosTimeline} from 'components/UI'
+import {VideosTimeline} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
@@ -15,12 +15,6 @@ function Zone() {
             کل انلاین ها: 0
           </Grid>
         </Grid>
-      </Box>
-
-      <Divider />
-
-      <Box sx={{my: 2}}>
-        <DropZone />
       </Box>
 
       <Divider />
