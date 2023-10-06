@@ -74,6 +74,72 @@ export const files = [
     duration: 30000,
     id: 4,
   },
+  {
+    filename: 'عکس دو.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 5,
+  },
+  {
+    filename: 'عکس سه.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 6,
+  },
+  {
+    filename: 'عکس چهار.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 7,
+  },
+  {
+    filename: 'عکس 5.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 8,
+  },
+  {
+    filename: 'عکس جدید منظره سیبسی 6.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 9,
+  },
+  {
+    filename: 'عکس 7.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 10,
+  },
+  {
+    filename: 'عکس 8.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 11,
+  },
+  {
+    filename: 'عکس 9.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 12,
+  },
+  {
+    filename: 'عکس 10.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 13,
+  },
+  {
+    filename: 'عکس 11.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 14,
+  },
+  {
+    filename: 'عکس 12.jpg',
+    thumbnails: ['vid-screenshot-7'],
+    duration: 30000,
+    id: 15,
+  },
 ]
 
 export const serverStateArr = [

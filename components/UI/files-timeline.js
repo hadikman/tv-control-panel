@@ -7,19 +7,19 @@ import Divider from '@mui/material/Divider'
 import Chip from '@mui/material/Chip'
 import {generateKeyCopy} from 'util/helper-functions'
 
-export function VideosTimeline({sx, ...props}) {
+export function FilesAndTimeline({sx, ...props}) {
   const [addedFiles, setAddedFiles] = React.useState([])
   const totalMilisecsRef = React.useRef(0)
 
   function handleDragEnd(event) {
     const {active} = event
-    const {id, name, duration} = active.data.current
+    const {id, filename, duration, thumbnails} = active.data.current
 
     totalMilisecsRef.current += duration
 
     setAddedFiles(prevState => [
       ...prevState,
-      {id: generateKeyCopy(id), name, duration},
+      {id: generateKeyCopy(id), filename, duration, thumbnails},
     ])
   }
 
@@ -46,6 +46,7 @@ export function VideosTimeline({sx, ...props}) {
           filesArr={addedFiles}
           playDuration={totalMilisecsRef.current}
           removeFileFn={handleRemoveFile}
+          updateArrStateFn={setAddedFiles}
         />
       </Box>
     </Stack>

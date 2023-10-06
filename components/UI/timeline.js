@@ -1,8 +1,15 @@
 import * as React from 'react'
-import {DndContext} from '@dnd-kit/core'
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import {restrictToHorizontalAxis} from '@dnd-kit/modifiers'
-import {Droppable} from 'components/UI'
-import Grid from '@mui/material/Grid'
+import Image from 'next/image'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -11,20 +18,38 @@ import CircularProgress from '@mui/material/CircularProgress'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ClearIcon from '@mui/icons-material/Clear'
 import SaveIcon from '@mui/icons-material/Save'
-import {generateKeyCopy, milisecondsToTime} from 'util/helper-functions'
+import {milisecondsToTime, truncateWords} from 'util/helper-functions'
 
-function Timeline({id, playDuration, filesArr, removeFileFn}) {
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import {CSS} from '@dnd-kit/utilities'
+
+function Timeline({
+  id,
+  playDuration,
+  filesArr,
+  removeFileFn,
+  updateArrStateFn,
+  ...props
+}) {
+  const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
   const [isSending, setIsSending] = React.useState(false)
 
   const addedVideosCount = filesArr.length
   const isEmptyTimeline = addedVideosCount === 0
+  const isActiveGrabbedItem = activeGrabbedItem.id !== 0
 
   const timeChunkInMilisec = 300000 // 5 minutes
   const occupiedCellCount =
     playDuration !== 0 ? playDuration / timeChunkInMilisec : 0
 
   const timeCells = [
-    ...Array.from({length: 13}, (_, i) => ({
+    ...Array.from({length: 145}, (_, i) => ({
       cellLength: milisecondsToTime(timeChunkInMilisec * i),
       occupiedCell: i < occupiedCellCount ? 100 : 0,
     })),
@@ -41,117 +66,217 @@ function Timeline({id, playDuration, filesArr, removeFileFn}) {
     }, 1500)
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  )
+
+  function handleDragStart(event) {
+    const {active} = event
+
+    const getVideoObj = filesArr.find(item => item.id === active.id)
+
+    setActiveGrabbedItem(prevState => ({...prevState, ...getVideoObj}))
+  }
+
+  function handleDragEnd(event) {
+    const {active, over} = event
+
+    if (active.id !== over.id) {
+      updateArrStateFn(items => {
+        const oldIndex = items.findIndex(item => item.id === active.id)
+        const newIndex = items.findIndex(item => item.id === over.id)
+
+        return arrayMove(items, oldIndex, newIndex)
+      })
+    }
+
+    setActiveGrabbedItem({id: 0})
+  }
+  // console.log(activeGrabbedItem)
   return (
-    <DndContext id={id} modifiers={[restrictToHorizontalAxis]}>
-      <Box>
+    <DndContext
+      id={id}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      modifiers={[restrictToHorizontalAxis]}
+    >
+      <Box {...props}>
         <Typography>مدت زمان پخش {milisecondsToTime(playDuration)}</Typography>
 
-        <Box my={1}>
-          <Grid
-            container
-            columns={13}
+        <Box sx={{my: 1}}>
+          <Box
             sx={{
+              '--cell-width': '55px',
+              maxWidth: '85vw',
+              display: 'grid',
               textAlign: 'center',
               bgcolor: 'darkClr.main',
               color: 'lightClr.main',
-              pt: 1,
+              py: 1,
+              mx: 'auto',
+              overflowX: 'auto',
             }}
           >
-            {timeCells.map(({occupiedCell}, idx) => (
-              <Grid
-                key={idx}
-                item
-                xs={1}
-                sx={{
-                  fontSize: '0.75rem',
-                  borderTop: '1px solid',
-                  borderColor: 'lightClr.main',
-                  flexWrap: 'nowrap',
-                }}
-              >
-                <Box sx={{position: 'relative'}}>
-                  <Box
-                    sx={{
-                      width: '1px',
-                      height: idx % 2 === 1 ? '8px' : '16px',
-                      bgcolor: 'lightClr.main',
-                      ml: 'auto',
-                      mr: 'auto',
-                    }}
-                  ></Box>
-
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '2px',
-                      right: 0,
-                      width: `${occupiedCell}%`,
-                      height: '4px',
-                      bgcolor: 'success.light',
-                    }}
-                  ></Box>
-                </Box>
-              </Grid>
-            ))}
-
-            {timeCells.map(({cellLength}, idx) => (
-              <Grid key={idx} item xs={1} sx={{fontSize: '0.75rem'}}>
-                {cellLength}
-              </Grid>
-            ))}
-          </Grid>
-
-          <Droppable
-            id="droppable-area"
-            sx={{
-              alignItems: 'center',
-              flexWrap: 'nowrap',
-              gap: 1,
-              bgcolor: '#ccc',
-              p: 2,
-            }}
-          >
-            {isEmptyTimeline ? (
-              <Typography key={generateKeyCopy('temp-element')} sx={{py: 1}}>
-                فایل مورد نظر خود را با استفاده از{' '}
-                <IconButton size="small">
-                  <DragIndicatorIcon />
-                </IconButton>{' '}
-                در اینجا قرار دهید
-              </Typography>
-            ) : (
-              filesArr.map(({id, name}) => (
-                <Grid
-                  key={id}
-                  item
+            <Box sx={{display: 'flex'}}>
+              {timeCells.map(({occupiedCell}, idx) => (
+                <Box
+                  key={idx}
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    bgcolor: 'accentClr.main',
-                    borderRadius: 'var(--sm-corner)',
-                    p: 1,
+                    minWidth: 'var(--cell-width)',
+                    fontSize: '0.75rem',
+                    borderTop: '1px solid',
+                    borderColor: 'lightClr.main',
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    endIcon={<ClearIcon onClick={() => removeFileFn(id)} />}
-                    color="inherit"
-                    sx={{textTransform: 'none', fontSize: '0.75rem'}}
+                  <Box sx={{position: 'relative'}}>
+                    <Box
+                      sx={{
+                        width: '1px',
+                        height: idx % 2 === 1 ? '8px' : '16px',
+                        bgcolor: 'lightClr.main',
+                        mx: 'auto',
+                      }}
+                    ></Box>
+
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: 0,
+                        width: `${occupiedCell}%`,
+                        height: '4px',
+                        bgcolor: 'success.light',
+                      }}
+                    ></Box>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+
+            <Box sx={{display: 'flex'}}>
+              {timeCells.map(({cellLength}, idx) => (
+                <Box
+                  key={idx}
+                  sx={{minWidth: 'var(--cell-width)', fontSize: '0.75rem'}}
+                >
+                  {cellLength}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          <SortableContext
+            id="droppable-sortable-area"
+            items={filesArr}
+            strategy={horizontalListSortingStrategy}
+          >
+            <Box
+              sx={{
+                '--thumbnail-size': '70px',
+                maxWidth: '85vw',
+                display: 'flex',
+                gap: '8px',
+                bgcolor: 'hsl(0 0% 35%)',
+                mx: 'auto',
+                p: 1,
+                overflowX: 'auto',
+              }}
+            >
+              {isEmptyTimeline ? (
+                <Typography sx={{py: 1, color: 'lightClr.main'}}>
+                  فایل مورد نظر خود را با استفاده از{' '}
+                  <IconButton size="small">
+                    <DragIndicatorIcon sx={{color: 'lightClr.main'}} />
+                  </IconButton>{' '}
+                  در اینجا قرار دهید
+                </Typography>
+              ) : (
+                filesArr.map(({id, filename, thumbnails}) => (
+                  <Box
+                    key={id}
+                    sx={{
+                      width: 'var(--thumbnail-size)',
+                      height: 'var(--thumbnail-size)',
+                      bgcolor: 'lightClr.main',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      ':hover': {
+                        '.info': {
+                          transform: 'translateY(100%)',
+                          visibility: 'hidden',
+                          opacity: 0,
+                        },
+                      },
+                    }}
                   >
-                    {name}
-                  </Button>
-                </Grid>
-              ))
-            )}
-          </Droppable>
+                    <Image
+                      src={`/video-thumbnails/${thumbnails[0]}.jpg`}
+                      alt="عکس شاخص ویدئو"
+                      fill
+                      sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
+                      style={{objectFit: 'cover'}}
+                    />
+                    <Typography
+                      className="info"
+                      sx={{
+                        position: 'absolute',
+                        inset: '50% 0 0',
+                        fontSize: '0.75rem',
+                        lineHeight: 1.25,
+                        color: 'lightClr.main',
+                        bgcolor: 'hsl(0 0% 10% / 0.25)',
+                        p: '2px',
+                        transition: '0.2s ease-out, transform 0.3s',
+                      }}
+                    >
+                      {truncateWords(filename, 17)}
+                    </Typography>
+
+                    <IconButton
+                      color="error"
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        p: '4px',
+                      }}
+                      onClick={() => removeFileFn(id)}
+                    >
+                      <ClearIcon sx={{fontSize: '1.125rem'}} />
+                    </IconButton>
+
+                    <SortableItem id={id} filename={filename}>
+                      <IconButton>
+                        <DragIndicatorIcon sx={{color: 'darkClr.main'}} />
+                      </IconButton>
+                    </SortableItem>
+                  </Box>
+                ))
+              )}
+            </Box>
+          </SortableContext>
+          <DragOverlay>
+            {isActiveGrabbedItem ? (
+              <Item
+                filename={activeGrabbedItem.filename}
+                thumbnails={activeGrabbedItem.thumbnails}
+              />
+            ) : null}
+          </DragOverlay>
         </Box>
 
         <Button
           variant="contained"
           endIcon={isSending ? <CircularProgress size={18} /> : <SaveIcon />}
           disabled={isSending ? true : false}
+          color="success"
           onClick={handleSaveTimelineState}
-          color="accentClr"
+          type="submit"
         >
           ذخیره
         </Button>
@@ -161,3 +286,59 @@ function Timeline({id, playDuration, filesArr, removeFileFn}) {
 }
 
 export {Timeline}
+
+function SortableItem({id, filename, children}) {
+  const {attributes, listeners, setNodeRef, transform, transition} =
+    useSortable({id, filename})
+
+  const itemBaseStyle = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <Box
+      ref={setNodeRef}
+      sx={{
+        ...itemBaseStyle,
+      }}
+      {...attributes}
+      {...listeners}
+    >
+      {children}
+    </Box>
+  )
+}
+
+const Item = React.forwardRef(({filename, ...props}, ref) => {
+  return (
+    <Box
+      sx={{
+        width: '70px',
+        height: '70px',
+        bgcolor: 'lightClr.main',
+        borderRadius: 'var(--md-corner)',
+        color: 'darkClr.main',
+        border: '2px solid',
+        borderColor: 'hsl(0 0% 75%)',
+        boxShadow: '0 0 10px 4px hsl(0 0% 15% / 0.45)',
+        position: 'relative',
+      }}
+      {...props}
+      ref={ref}
+    >
+      <Typography
+        sx={{
+          position: 'absolute',
+          inset: '-6px',
+          fontSize: '0.875rem',
+          p: '12px',
+        }}
+      >
+        {truncateWords(filename, 17)}
+      </Typography>
+    </Box>
+  )
+})
+
+Item.displayName = 'DragOverlayItem'

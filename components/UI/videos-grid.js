@@ -14,69 +14,77 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import AddAlarmIcon from '@mui/icons-material/AddAlarm'
 import DoneIcon from '@mui/icons-material/Done'
 import useClickOutsideElement from 'hook/useClickOutsideElement'
+import {milisecondsToTime} from 'util/helper-functions'
 import {files} from 'util/dummy-data'
 
 export function VideosGrid() {
   return (
-    <Grid
-      container
-      sx={{
-        '--card-height': '5rem',
-        '--wrapper-imgs-height': 'calc(var(--card-height) * 0.86)',
-        '--card-name-height':
-          'calc(var(--card-height) - var(--wrapper-imgs-height))',
-        minHeight: 'var(--card-height)',
-        gap: '4px',
-      }}
-    >
-      {files.map(({id, name, duration, thumbnails}) => (
-        <Grid
-          key={id}
-          item
-          sx={{
-            minWidth: '5rem',
-            maxWidth: '5rem',
-            border: '1px solid',
-            borderColor: 'lightClr.main',
-          }}
-        >
-          <FilePreview filename={name} thumbnails={thumbnails} />
+    <Box>
+      <Grid
+        container
+        columns={10}
+        sx={{
+          '--card-height': '5rem',
+          '--gap': '6px',
+          '--card-width': 'calc(6rem - var(--gap))',
+          '--wrapper-imgs-height': 'calc(var(--card-height) * 0.86)',
+          '--card-name-height':
+            'calc(var(--card-height) - var(--wrapper-imgs-height))',
+          minHeight: '34vh',
+          gap: 'var(--gap)',
+          bgcolor: 'hsl(0 0% 90%)',
+          border: '3px solid',
+          borderColor: 'greyClr.main',
+          borderRadius: 'var(--sm-corner)',
+          p: 1,
+        }}
+      >
+        {files.map(({id, filename, duration, thumbnails}) => (
+          <Grid key={id} item xs={1} sx={{minWidth: 'var(--card-width)'}}>
+            <Box>
+              <FilePreview
+                filename={filename}
+                duration={duration}
+                thumbnails={thumbnails}
+              />
 
-          <Grid
-            container
-            sx={{
-              flexWrap: 'nowrap',
-              alignItems: 'center',
-              bgcolor: '#fefefe',
-              py: 1,
-              px: '4px',
-            }}
-          >
-            <Draggable id={id} data={{id, name, duration}}>
-              <IconButton sx={{p: 0}}>
-                <DragIndicatorIcon sx={{fontSize: 20}} />
-              </IconButton>
-            </Draggable>
+              <Grid
+                container
+                sx={{
+                  flexWrap: 'nowrap',
+                  alignItems: 'center',
+                  bgcolor: 'hsl(0 0% 98%)',
+                  py: 1,
+                  px: '4px',
+                }}
+              >
+                <Draggable id={id} data={{id, filename, duration, thumbnails}}>
+                  <IconButton sx={{p: 0}}>
+                    <DragIndicatorIcon sx={{fontSize: 20}} />
+                  </IconButton>
+                </Draggable>
 
-            <Typography
-              variant="caption"
-              sx={{
-                flexGrow: 1,
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-              }}
-            >
-              {name}
-            </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    flexGrow: 1,
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {filename}
+                </Typography>
+              </Grid>
+            </Box>
           </Grid>
-        </Grid>
-      ))}
-    </Grid>
+        ))}
+      </Grid>
+    </Box>
   )
 }
 
-function FilePreview({filename, thumbnails}) {
+function FilePreview({filename, duration, thumbnails}) {
   let intervalFunRef = React.useRef()
   const [imageIdx, setImageIdx] = React.useState(0)
   const [isTimePicker, setIsTimePicker] = React.useState(false)
@@ -196,6 +204,8 @@ function FilePreview({filename, thumbnails}) {
             borderColor: 'info.light',
             borderRadius: 'var(--sm-corner)',
             p: 1,
+            boxShadow: '0 6px 12px 2px hsl(0 0% 0% / 0.2)',
+            zIndex: 1,
             input: {
               '&::placeholder': {fontSize: '0.75em'},
             },
@@ -259,6 +269,22 @@ function FilePreview({filename, thumbnails}) {
           <AddAlarmIcon />
         </IconButton>
       )}
+
+      <Typography
+        variant="caption"
+        sx={{
+          position: 'absolute',
+          left: '5%',
+          bottom: '5%',
+          bgcolor: 'lightClr.main',
+          border: 'thin solid',
+          borderColor: 'hsl(0 0% 50%)',
+          borderRadius: 'var(--sm-corner)',
+          p: '2px 6px',
+        }}
+      >
+        {milisecondsToTime(duration)}
+      </Typography>
     </Box>
   )
 }

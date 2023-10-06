@@ -6,12 +6,15 @@ function Main({children, ...props}) {
     <Grid
       component="main"
       sx={{
+        width: '100%',
+        maxWidth: '1280px',
         minHeight:
           'calc(100vh - (var(--header-height) + var(--footer-height)))',
         display: 'grid',
         gridTemplateColumns: 'max-content 1fr',
         gap: 1,
         p: 1,
+        mx: 'auto',
       }}
       {...props}
     >

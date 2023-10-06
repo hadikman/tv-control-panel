@@ -27,3 +27,13 @@ export function milisecondsToTime(milisecond) {
 
   return `${h}:${m}:${s}`
 }
+
+export function truncateWords(string = '', length = 15) {
+  const stringLength = string.length
+
+  if (stringLength > length) {
+    return string.slice(0, length) + '...'
+  }
+
+  return string
+}

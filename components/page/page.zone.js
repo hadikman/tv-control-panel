@@ -1,4 +1,4 @@
-import {VideosTimeline} from 'components/UI'
+import {FilesAndTimeline} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
@@ -20,7 +20,7 @@ function Zone() {
       <Divider />
 
       <Box sx={{mt: 2}}>
-        <VideosTimeline />
+        <FilesAndTimeline />
       </Box>
     </Box>
   )
