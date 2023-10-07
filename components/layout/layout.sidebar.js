@@ -1,4 +1,5 @@
 import * as React from 'react'
+import {AuthContext} from 'components/auth/auth'
 import Link from 'next/link'
 import {useTheme} from '@mui/material/styles'
 import Grid from '@mui/material/Grid'
@@ -39,6 +40,8 @@ const menuListItems = [
 ]
 
 function Sidebar({...props}) {
+  const {onUpdateAuthState} = React.useContext(AuthContext)
+
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
 
@@ -48,6 +51,11 @@ function Sidebar({...props}) {
 
   function handleDrawerClose() {
     setOpen(false)
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('token')
+    onUpdateAuthState(false)
   }
 
   return (
@@ -118,6 +126,7 @@ function Sidebar({...props}) {
 
             ...(!open && {px: 0}),
           }}
+          onClick={handleLogout}
         >
           {open && <ListItemText primary="خروج" sx={{m: 0}} />}
           <ListItemIcon sx={{minWidth: 0, color: 'error.contrastText'}}>

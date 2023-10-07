@@ -1,21 +1,59 @@
 import * as React from 'react'
+import {AuthContext} from './auth'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
+import Snackbar from '@mui/material/Snackbar'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 
-function SignIn() {
-  const handleSubmit = event => {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
+async function fetchLoginData(userData) {
+  let response = {}
 
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    })
+  response = await fetch('http://79.175.157.194:8400/api/login', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  })
+
+  if (!response.ok) {
+    console.error('Login failed, try again.')
+  }
+
+  response = await response.json()
+
+  return response
+}
+
+function SignIn() {
+  const {onUpdateAuthState} = React.useContext(AuthContext)
+  const [isError, setIsError] = React.useState(false)
+
+  const handleOnSubmitForm = async event => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+
+    setIsError(false)
+
+    const userData = {
+      username: formData.get('username'),
+      password: formData.get('password'),
+    }
+
+    const fetchedLoginData = await fetchLoginData(userData)
+    const {success, data} = fetchedLoginData
+
+    if (success) {
+      localStorage.setItem('token', JSON.stringify(data.token))
+      onUpdateAuthState(true)
+    } else {
+      setIsError(true)
+    }
   }
 
   return (
@@ -34,7 +72,12 @@ function SignIn() {
         <Typography component="h1" variant="h5">
           ورود به پنل
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{mt: 1}}>
+        <Box
+          component="form"
+          onSubmit={handleOnSubmitForm}
+          noValidate
+          sx={{mt: 1}}
+        >
           <TextField
             margin="normal"
             required
@@ -64,6 +107,22 @@ function SignIn() {
             ورود
           </Button>
         </Box>
+
+        {isError && (
+          <Snackbar open={isError}>
+            <Typography
+              variant="body2"
+              sx={{
+                bgcolor: 'error.light',
+                color: 'error.contrastText',
+                borderRadius: 'var(--sm-corner)',
+                p: 1,
+              }}
+            >
+              خطایی رخ داده است، دوباره تلاش نمایید
+            </Typography>
+          </Snackbar>
+        )}
       </Box>
     </Container>
   )

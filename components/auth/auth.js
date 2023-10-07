@@ -3,17 +3,55 @@ import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
-import {SignIn, SignUp} from './index'
+import {SignIn} from './index'
+import CircularProgress from '@mui/material/CircularProgress'
 import VAZIRMATN_FONT from 'util/share-font'
 import PropTypes from 'prop-types'
 
-export default function Authentication({children, ...props}) {
-  const isAuthenticated = true
+export const AuthContext = React.createContext({
+  isAuth: Boolean,
+  onUpdateAuthState: () => {},
+})
 
-  return isAuthenticated ? <>{children}</> : <Auth {...props} />
+export default function Authentication({children, ...props}) {
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    const isToken = JSON.parse(localStorage.getItem('token')) !== null
+
+    if (isToken) {
+      setIsAuthenticated(true)
+    }
+
+    setIsLoading(false)
+  }, [])
+
+  const value = {isAuth: isAuthenticated, onUpdateAuthState: setIsAuthenticated}
+
+  return (
+    <AuthContext.Provider value={value}>
+      {isLoading ? (
+        <Box
+          sx={{
+            width: '100%',
+            height: '100dvh',
+            display: 'grid',
+            placeContent: 'center',
+          }}
+        >
+          <CircularProgress size={50} />
+        </Box>
+      ) : isAuthenticated ? (
+        <>{children}</>
+      ) : (
+        <AuthenticationPage {...props} />
+      )}
+    </AuthContext.Provider>
+  )
 }
 
-function Auth({...props}) {
+function AuthenticationPage({...props}) {
   const [value, setValue] = React.useState(0)
 
   function handleChangeTabs(event, newValue) {
@@ -40,14 +78,10 @@ function Auth({...props}) {
         <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
           <Tabs value={value} onChange={handleChangeTabs}>
             <Tab label="ورود کاربر" />
-            <Tab label="ثبت نام کاربر" />
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
           <SignIn />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <SignUp />
         </CustomTabPanel>
       </Stack>
     </Box>
