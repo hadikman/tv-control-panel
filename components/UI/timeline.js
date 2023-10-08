@@ -35,10 +35,11 @@ function Timeline({
   filesArr,
   removeFileFn,
   updateArrStateFn,
+  saveTimelineFn,
+  isSending,
   ...props
 }) {
   const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
-  const [isSending, setIsSending] = React.useState(false)
 
   const addedVideosCount = filesArr.length
   const isEmptyTimeline = addedVideosCount === 0
@@ -54,17 +55,6 @@ function Timeline({
       occupiedCell: i < occupiedCellCount ? 100 : 0,
     })),
   ]
-
-  function handleSaveTimelineState() {
-    setIsSending(true)
-
-    // TODO send a POST request to the API
-    console.log(filesArr)
-
-    setTimeout(() => {
-      setIsSending(false)
-    }, 1500)
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -95,7 +85,7 @@ function Timeline({
 
     setActiveGrabbedItem({id: 0})
   }
-  // console.log(activeGrabbedItem)
+
   return (
     <DndContext
       id={id}
@@ -196,12 +186,13 @@ function Timeline({
                   در اینجا قرار دهید
                 </Typography>
               ) : (
-                filesArr.map(({id, filename, thumbnails}) => (
+                filesArr.map(({id, filename, thumbnail}) => (
                   <Box
                     key={id}
                     sx={{
                       width: 'var(--thumbnail-size)',
                       height: 'var(--thumbnail-size)',
+                      flexShrink: 0,
                       bgcolor: 'lightClr.main',
                       position: 'relative',
                       overflow: 'hidden',
@@ -215,7 +206,7 @@ function Timeline({
                     }}
                   >
                     <Image
-                      src={`/video-thumbnails/${thumbnails[0]}.jpg`}
+                      src={`/video-thumbnails/${thumbnail}.jpg`}
                       alt="عکس شاخص ویدئو"
                       fill
                       sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
@@ -275,8 +266,7 @@ function Timeline({
           endIcon={isSending ? <CircularProgress size={18} /> : <SaveIcon />}
           disabled={isSending ? true : false}
           color="success"
-          onClick={handleSaveTimelineState}
-          type="submit"
+          onClick={saveTimelineFn}
         >
           ذخیره
         </Button>

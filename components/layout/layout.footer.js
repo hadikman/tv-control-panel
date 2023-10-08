@@ -1,4 +1,5 @@
 import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
 function Footer({...props}) {
@@ -9,23 +10,27 @@ function Footer({...props}) {
   })
 
   return (
-    <Grid
-      container
-      component="footer"
-      sx={{
-        minHeight: 'var(--footer-height)',
-        textAlign: 'center',
-        bgcolor: 'primary.main',
-        color: 'primary.contrastText',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-      {...props}
-    >
-      <Typography variant="caption">
-        داشبورد کنترل نمایش تلویزیون ها نسخه 1.0 - {persianDate}
-      </Typography>
-    </Grid>
+    <Box sx={{bgcolor: 'primary.main'}}>
+      <Grid
+        container
+        component="footer"
+        sx={{
+          width: '100%',
+          maxWidth: 'var(--container-width)',
+          minHeight: 'var(--footer-height)',
+          textAlign: 'center',
+          color: 'primary.contrastText',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mx: 'auto',
+        }}
+        {...props}
+      >
+        <Typography variant="caption">
+          داشبورد کنترل نمایش تلویزیون ها نسخه 1.0 - {persianDate}
+        </Typography>
+      </Grid>
+    </Box>
   )
 }
 

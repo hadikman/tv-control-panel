@@ -7,7 +7,7 @@ function Main({children, ...props}) {
       component="main"
       sx={{
         width: '100%',
-        maxWidth: '1280px',
+        maxWidth: 'var(--container-width)',
         minHeight:
           'calc(100vh - (var(--header-height) + var(--footer-height)))',
         display: 'grid',

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {useDropzone} from 'react-dropzone'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -8,12 +9,34 @@ import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import ClearIcon from '@mui/icons-material/Clear'
 import CircularProgress from '@mui/material/CircularProgress'
+import LinearProgress from '@mui/material/LinearProgress'
 import SaveIcon from '@mui/icons-material/Save'
+import {UPLOAD_FILE_API} from 'util/api-url'
+
+const UPLOAD_URL = process.env.NEXT_PUBLIC_DOMAIN + UPLOAD_FILE_API
 
 function DropZone() {
+  const queryClient = useQueryClient()
+  const {mutate, isLoading: isSending} = useMutation({
+    mutationFn: newFormData =>
+      fetch(UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+        body: newFormData,
+        timeout: 60000 * 10,
+      }).then(res => res.json()),
+    onSuccess: data => {
+      queryClient.invalidateQueries({queryKey: ['media-files-data']})
+
+      if (data.success) {
+        setAcceptedFileArr([])
+      }
+    },
+  })
   const [accpetedFileArr, setAcceptedFileArr] = React.useState([])
   const [rejectedFileArr, setRejectedFileArr] = React.useState([])
-  const [isSending, setIsSending] = React.useState(false)
 
   const isAccpetedFileArr = accpetedFileArr.length > 0
   const isRejectedFileArr = rejectedFileArr.length > 0
@@ -63,18 +86,15 @@ function DropZone() {
     setAcceptedFileArr(prevFile => prevFile.filter(file => file.name !== name))
   }
 
-  function handleOnSubmitOnUploadedFiles(e) {
+  async function handleOnSubmitOnUploadedFiles(e) {
     e.preventDefault()
 
-    setIsSending(true)
+    const formData = new FormData()
+
+    accpetedFileArr.forEach(file => formData.append('file', file))
 
     // TODO send a POST request to the API
-    console.log(accpetedFileArr)
-
-    setTimeout(() => {
-      setIsSending(false)
-      setAcceptedFileArr([])
-    }, 1500)
+    mutate(formData)
   }
 
   function handleOnResetOnUploadedFiles(e) {
@@ -205,6 +225,8 @@ function DropZone() {
               </Grid>
             )}
           </Grid>
+
+          {isSending && <LinearProgress />}
         </Grid>
       </Grid>
     </Stack>

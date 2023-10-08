@@ -1,4 +1,5 @@
 import * as React from 'react'
+import useMediaFilesData from 'hook/useMediaFilesData'
 import {Draggable} from 'components/UI'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid'
@@ -15,9 +16,16 @@ import AddAlarmIcon from '@mui/icons-material/AddAlarm'
 import DoneIcon from '@mui/icons-material/Done'
 import useClickOutsideElement from 'hook/useClickOutsideElement'
 import {milisecondsToTime} from 'util/helper-functions'
-import {files} from 'util/dummy-data'
 
 export function VideosGrid() {
+  const {data, isSuccess} = useMediaFilesData()
+
+  let files = []
+
+  if (isSuccess) {
+    files = data.data.files
+  }
+
   return (
     <Box>
       <Grid

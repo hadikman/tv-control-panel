@@ -8,11 +8,14 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Snackbar from '@mui/material/Snackbar'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import {LOGIN_API} from 'util/api-url'
+
+const URL = process.env.NEXT_PUBLIC_DOMAIN + LOGIN_API
 
 async function fetchLoginData(userData) {
   let response = {}
 
-  response = await fetch('http://79.175.157.194:8400/api/login', {
+  response = await fetch(URL, {
     method: 'POST',
     headers: {
       Accept: 'application/json',

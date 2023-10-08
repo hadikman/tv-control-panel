@@ -1,15 +1,13 @@
 export const zones = [
-  {name: 'زون یک', videosCount: [], slug: 'zone-1', id: 1},
+  {name: 'زون یک', videosCount: [], id: 1},
   {
     name: 'زون دو',
     videosCount: ['img-3', 'img-4', 'img-5'],
-    slug: 'zone-2',
     id: 2,
   },
   {
     name: 'زون سه',
     videosCount: ['img-4', 'img-5', 'img-6', 'img-7', 'img-8'],
-    slug: 'zone-3',
     id: 3,
   },
   {
@@ -24,13 +22,11 @@ export const zones = [
       'img-15',
       'img-16',
     ],
-    slug: 'zone-4',
     id: 4,
   },
   {
     name: 'زون پنج',
     videosCount: ['img-17', 'img-18', 'img-19', 'img-20', 'img-21', 'img-22'],
-    slug: 'zone-5',
     id: 5,
   },
   {
@@ -44,7 +40,6 @@ export const zones = [
       'img-28',
       'img-29',
     ],
-    slug: 'zone-6',
     id: 6,
   },
 ]

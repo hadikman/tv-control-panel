@@ -12,7 +12,7 @@ import AddIcon from '@mui/icons-material/Add'
 
 function ZonesCard({name, videosCount, slug}) {
   const isLoading = false
-  const videosThumbnail = videosCount
+  const videosThumbnail = [...videosCount]
   const videosThumbnailCount = videosThumbnail.length
   const isEmptyZone = videosThumbnailCount === 0
   const DO_NOT_CHANGE_THIS_VALUE = 3
@@ -25,10 +25,6 @@ function ZonesCard({name, videosCount, slug}) {
     ? GRID_COLS
     : 12 / videosThumbnailCount
   const colSpanInSecondRow = 12 / THUMBNAILS_IN_SECOND_ROW
-
-  function handleAddZone() {
-    console.log({name})
-  }
 
   return (
     <Card
@@ -56,9 +52,11 @@ function ZonesCard({name, videosCount, slug}) {
           {isLoading ? (
             <CircularProgress color="accentClr" />
           ) : isEmptyZone ? (
-            <IconButton color="accentClr" size="large" onClick={handleAddZone}>
-              <AddIcon fontSize="large" />
-            </IconButton>
+            <Link href={`/zones/${slug}`}>
+              <IconButton color="accentClr" size="large">
+                <AddIcon fontSize="large" />
+              </IconButton>
+            </Link>
           ) : (
             videosThumbnail.map((imgSrc, index) => {
               const count = index + 1

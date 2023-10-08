@@ -1,4 +1,5 @@
 import * as React from 'react'
+import useMediaFilesData from 'hook/useMediaFilesData'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
@@ -9,9 +10,16 @@ import StopCircleIcon from '@mui/icons-material/StopCircle'
 import ImageIcon from '@mui/icons-material/Image'
 import ClearIcon from '@mui/icons-material/Clear'
 import {milisecondsToTime} from 'util/helper-functions'
-import {files} from 'util/dummy-data'
 
 export function PreviewMediaFiles() {
+  const {data, isSuccess} = useMediaFilesData()
+
+  let files = []
+
+  if (isSuccess) {
+    files = data.data.files
+  }
+
   function handleDeleteMedia(id) {
     // TODO send a POST request to the API
 
@@ -30,47 +38,48 @@ export function PreviewMediaFiles() {
         minHeight: 'var(--card-height)',
       }}
     >
-      {files.map(({id, filename, duration, thumbnails}) => (
-        <Grid key={id} item xs={3} md={2} xl={1}>
-          <Box sx={{border: '1px solid', borderColor: 'lightClr.main'}}>
-            <FilePreview
-              filename={filename}
-              duration={duration}
-              thumbnails={thumbnails}
-            />
+      {isSuccess &&
+        files.map(({id, filename, duration, thumbnails}) => (
+          <Grid key={id} item xs={3} md={2} xl={1}>
+            <Box sx={{border: '1px solid', borderColor: 'lightClr.main'}}>
+              <FilePreview
+                filename={filename}
+                duration={duration}
+                thumbnails={thumbnails}
+              />
 
-            <Grid
-              container
-              sx={{
-                flexWrap: 'nowrap',
-                alignItems: 'center',
-                bgcolor: '#fefefe',
-                p: 1,
-              }}
-            >
-              <Typography
-                variant="body1"
+              <Grid
+                container
                 sx={{
-                  flexGrow: 1,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
+                  flexWrap: 'nowrap',
+                  alignItems: 'center',
+                  bgcolor: '#fefefe',
+                  p: 1,
                 }}
               >
-                {filename}
-              </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    flexGrow: 1,
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {filename}
+                </Typography>
 
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleDeleteMedia(id)}
-              >
-                <ClearIcon />
-              </IconButton>
-            </Grid>
-          </Box>
-        </Grid>
-      ))}
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleDeleteMedia(id)}
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Grid>
+            </Box>
+          </Grid>
+        ))}
     </Grid>
   )
 }
