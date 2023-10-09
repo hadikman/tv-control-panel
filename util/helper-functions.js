@@ -4,7 +4,7 @@ export function randomNumberBetweenTwoDigits(min, max) {
 
 export function uid() {
   let uniqueId = ''
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 6; i++) {
     uniqueId += randomNumberBetweenTwoDigits(1, 15).toString(16)
   }
   return uniqueId
