@@ -29,6 +29,24 @@ import {
 } from '@dnd-kit/sortable'
 import {CSS} from '@dnd-kit/utilities'
 
+const customScrollbar = {
+  '&::-webkit-scrollbar': {
+    height: '0.45rem',
+  },
+  '&::-webkit-scrollbar-track': {
+    bgcolor: 'darkClr.main',
+    p: 1,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    width: '8rem',
+    bgcolor: 'hsl(0 0% 45%)',
+    borderRadius: '10rem',
+    ':hover': {
+      bgcolor: 'hsl(0 0% 65%)',
+    },
+  },
+}
+
 function Timeline({
   id,
   playDuration,
@@ -40,7 +58,7 @@ function Timeline({
   ...props
 }) {
   const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
-
+  // filesArr = filesArr.slice(0, 2)
   const addedVideosCount = filesArr.length
   const isEmptyTimeline = addedVideosCount === 0
   const isActiveGrabbedItem = activeGrabbedItem.id !== 0
@@ -98,63 +116,74 @@ function Timeline({
       <Box {...props}>
         <Typography>مدت زمان پخش {milisecondsToTime(playDuration)}</Typography>
 
-        <Box sx={{my: 1}}>
+        <Box sx={{bgcolor: 'darkClr.main', my: 1}}>
           <Box
             sx={{
               '--cell-width': '55px',
-              maxWidth: '85vw',
+              '--short-line': '8px',
+              '--long-line': 'calc(var(--short-line) * 2)',
+              '--bottom-gap': '2px',
+              '--short-line-gap': 'calc(var(--short-line) + var(--bottom-gap))',
               display: 'grid',
+              gap: 1,
               textAlign: 'center',
-              bgcolor: 'darkClr.main',
               color: 'lightClr.main',
-              py: 1,
-              mx: 'auto',
-              overflowX: 'auto',
+              pt: 1,
+              pb: 2,
             }}
           >
-            <Box sx={{display: 'flex'}}>
-              {timeCells.map(({occupiedCell}, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    minWidth: 'var(--cell-width)',
-                    fontSize: '0.75rem',
-                    borderTop: '1px solid',
-                    borderColor: 'lightClr.main',
-                  }}
-                >
-                  <Box sx={{position: 'relative'}}>
-                    <Box
-                      sx={{
-                        width: '1px',
-                        height: idx % 2 === 1 ? '8px' : '16px',
-                        bgcolor: 'lightClr.main',
-                        mx: 'auto',
-                      }}
-                    ></Box>
+            <Box
+              sx={{
+                display: 'grid',
+                gridAutoFlow: 'column',
+                gridAutoColumns: 'var(--cell-width)',
+                py: 1,
+                overflowX: 'auto',
+                ...customScrollbar,
+              }}
+            >
+              {timeCells.map(({cellLength, occupiedCell}, idx) => (
+                <Box key={idx}>
+                  <Box
+                    data-top-side-container
+                    sx={{
+                      borderTop: '1px solid',
+                      borderColor: 'lightClr.main',
+                      mb:
+                        idx % 2 === 1
+                          ? 'var(--short-line-gap)'
+                          : 'var(--bottom-gap)',
+                    }}
+                  >
+                    <Box sx={{position: 'relative'}}>
+                      <Box
+                        sx={{
+                          width: '1px',
+                          height:
+                            idx % 2 === 1
+                              ? 'var(--short-line)'
+                              : 'var(--long-line)',
+                          bgcolor: 'lightClr.main',
+                          mx: 'auto',
+                        }}
+                      ></Box>
 
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: '2px',
-                        right: 0,
-                        width: `${occupiedCell}%`,
-                        height: '4px',
-                        bgcolor: 'success.light',
-                      }}
-                    ></Box>
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: '2px',
+                          right: 0,
+                          width: `${occupiedCell}%`,
+                          height: '4px',
+                          bgcolor: 'success.light',
+                        }}
+                      ></Box>
+                    </Box>
                   </Box>
-                </Box>
-              ))}
-            </Box>
 
-            <Box sx={{display: 'flex'}}>
-              {timeCells.map(({cellLength}, idx) => (
-                <Box
-                  key={idx}
-                  sx={{minWidth: 'var(--cell-width)', fontSize: '0.75rem'}}
-                >
-                  {cellLength}
+                  <Box data-duration sx={{fontSize: '0.75rem'}}>
+                    {cellLength}
+                  </Box>
                 </Box>
               ))}
             </Box>
@@ -165,90 +194,91 @@ function Timeline({
             items={filesArr}
             strategy={horizontalListSortingStrategy}
           >
-            <Box
-              sx={{
-                '--thumbnail-size': '70px',
-                maxWidth: '85vw',
-                display: 'flex',
-                gap: '8px',
-                bgcolor: 'hsl(0 0% 35%)',
-                mx: 'auto',
-                p: 1,
-                overflowX: 'auto',
-              }}
-            >
-              {isEmptyTimeline ? (
-                <Typography sx={{py: 1, color: 'lightClr.main'}}>
-                  فایل مورد نظر خود را با استفاده از{' '}
-                  <IconButton size="small">
-                    <DragIndicatorIcon sx={{color: 'lightClr.main'}} />
-                  </IconButton>{' '}
-                  در اینجا قرار دهید
-                </Typography>
-              ) : (
-                filesArr.map(({id, filename, thumbnail}) => (
-                  <Box
-                    key={id}
-                    sx={{
-                      width: 'var(--thumbnail-size)',
-                      height: 'var(--thumbnail-size)',
-                      flexShrink: 0,
-                      bgcolor: 'lightClr.main',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      ':hover': {
-                        '.info': {
-                          transform: 'translateY(100%)',
-                          visibility: 'hidden',
-                          opacity: 0,
+            <Box sx={{display: 'grid', p: 1}}>
+              <Box
+                sx={{
+                  '--thumbnail-size': '70px',
+                  display: 'grid',
+                  gridAutoFlow: 'column',
+                  gridAutoColumns: 'var(--thumbnail-size)',
+                  gridAutoRows: 'var(--thumbnail-size)',
+                  gap: '8px',
+
+                  p: 1,
+                  overflowX: 'auto',
+                  ...customScrollbar,
+                }}
+              >
+                {isEmptyTimeline ? (
+                  <Typography sx={{py: 1, color: 'lightClr.main'}}>
+                    فایل مورد نظر خود را با استفاده از{' '}
+                    <IconButton size="small">
+                      <DragIndicatorIcon sx={{color: 'lightClr.main'}} />
+                    </IconButton>{' '}
+                    در اینجا قرار دهید
+                  </Typography>
+                ) : (
+                  filesArr.map(({id, filename, thumbnail}) => (
+                    <Box
+                      key={id}
+                      sx={{
+                        bgcolor: 'lightClr.main',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        ':hover': {
+                          '.info': {
+                            transform: 'translateY(100%)',
+                            visibility: 'hidden',
+                            opacity: 0,
+                          },
                         },
-                      },
-                    }}
-                  >
-                    <Image
-                      src={`/video-thumbnails/${thumbnail}.jpg`}
-                      alt="عکس شاخص ویدئو"
-                      fill
-                      sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
-                      style={{objectFit: 'cover'}}
-                    />
-                    <Typography
-                      className="info"
-                      sx={{
-                        position: 'absolute',
-                        inset: '50% 0 0',
-                        fontSize: '0.75rem',
-                        lineHeight: 1.25,
-                        color: 'lightClr.main',
-                        bgcolor: 'hsl(0 0% 10% / 0.25)',
-                        p: '2px',
-                        transition: '0.2s ease-out, transform 0.3s',
                       }}
                     >
-                      {truncateWords(filename, 17)}
-                    </Typography>
+                      <Image
+                        src={`/video-thumbnails/${thumbnail}.jpg`}
+                        alt="عکس شاخص ویدئو"
+                        fill
+                        sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
+                        style={{objectFit: 'cover'}}
+                      />
+                      <Typography
+                        className="info"
+                        sx={{
+                          position: 'absolute',
+                          inset: '50% 0 0',
+                          fontSize: '0.75rem',
+                          lineHeight: 1.25,
+                          color: 'lightClr.main',
+                          bgcolor: 'hsl(0 0% 10% / 0.25)',
+                          p: '2px',
+                          transition: '0.2s ease-out, transform 0.3s',
+                        }}
+                      >
+                        {truncateWords(filename, 17)}
+                      </Typography>
 
-                    <IconButton
-                      color="error"
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        right: 0,
-                        p: '4px',
-                      }}
-                      onClick={() => removeFileFn(id)}
-                    >
-                      <ClearIcon sx={{fontSize: '1.125rem'}} />
-                    </IconButton>
-
-                    <SortableItem id={id} filename={filename}>
-                      <IconButton>
-                        <DragIndicatorIcon sx={{color: 'darkClr.main'}} />
+                      <IconButton
+                        color="error"
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          p: '4px',
+                        }}
+                        onClick={() => removeFileFn(id)}
+                      >
+                        <ClearIcon sx={{fontSize: '1.125rem'}} />
                       </IconButton>
-                    </SortableItem>
-                  </Box>
-                ))
-              )}
+
+                      <SortableItem id={id} filename={filename}>
+                        <IconButton>
+                          <DragIndicatorIcon sx={{color: 'darkClr.main'}} />
+                        </IconButton>
+                      </SortableItem>
+                    </Box>
+                  ))
+                )}
+              </Box>
             </Box>
           </SortableContext>
           <DragOverlay>
