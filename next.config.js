@@ -7,6 +7,16 @@ const nextConfig = {
   compiler: {
     removeConsole: isProduction,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '79.175.157.194',
+        port: '8400',
+        pathname: '/**',
+      },
+    ],
+  },
 }
 
 const plugins = []
