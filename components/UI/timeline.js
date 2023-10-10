@@ -8,6 +8,14 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import {CSS} from '@dnd-kit/utilities'
 import {restrictToHorizontalAxis} from '@dnd-kit/modifiers'
 import Image from 'next/image'
 import Box from '@mui/material/Box'
@@ -19,15 +27,6 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ClearIcon from '@mui/icons-material/Clear'
 import SaveIcon from '@mui/icons-material/Save'
 import {milisecondsToTime, truncateWords} from 'util/helper-functions'
-
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable'
-import {CSS} from '@dnd-kit/utilities'
 
 const customScrollbar = {
   '&::-webkit-scrollbar': {
@@ -47,7 +46,7 @@ const customScrollbar = {
   },
 }
 
-function Timeline({
+export function Timeline({
   id,
   playDuration,
   filesArr,
@@ -58,7 +57,6 @@ function Timeline({
   ...props
 }) {
   const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
-  // filesArr = filesArr.slice(0, 2)
   const addedVideosCount = filesArr.length
   const isEmptyTimeline = addedVideosCount === 0
   const isActiveGrabbedItem = activeGrabbedItem.id !== 0
@@ -195,30 +193,29 @@ function Timeline({
             strategy={horizontalListSortingStrategy}
           >
             <Box sx={{display: 'grid', p: 1}}>
-              <Box
-                sx={{
-                  '--thumbnail-size': '70px',
-                  display: 'grid',
-                  gridAutoFlow: 'column',
-                  gridAutoColumns: 'var(--thumbnail-size)',
-                  gridAutoRows: 'var(--thumbnail-size)',
-                  gap: '8px',
-
-                  p: 1,
-                  overflowX: 'auto',
-                  ...customScrollbar,
-                }}
-              >
-                {isEmptyTimeline ? (
-                  <Typography sx={{py: 1, color: 'lightClr.main'}}>
-                    فایل مورد نظر خود را با استفاده از{' '}
-                    <IconButton size="small">
-                      <DragIndicatorIcon sx={{color: 'lightClr.main'}} />
-                    </IconButton>{' '}
-                    در اینجا قرار دهید
-                  </Typography>
-                ) : (
-                  filesArr.map(({id, filename, thumbnail}) => (
+              {isEmptyTimeline ? (
+                <Typography sx={{py: 1, color: 'lightClr.main'}}>
+                  فایل مورد نظر خود را با استفاده از{' '}
+                  <IconButton size="small">
+                    <DragIndicatorIcon sx={{color: 'lightClr.main'}} />
+                  </IconButton>{' '}
+                  در اینجا قرار دهید
+                </Typography>
+              ) : (
+                <Box
+                  sx={{
+                    '--thumbnail-size': '70px',
+                    display: 'grid',
+                    gridAutoFlow: 'column',
+                    gridAutoColumns: 'var(--thumbnail-size)',
+                    gridAutoRows: 'var(--thumbnail-size)',
+                    gap: '8px',
+                    p: 1,
+                    overflowX: 'auto',
+                    ...customScrollbar,
+                  }}
+                >
+                  {filesArr.map(({id, filename, thumbnail}) => (
                     <Box
                       key={id}
                       sx={{
@@ -276,9 +273,9 @@ function Timeline({
                         </IconButton>
                       </SortableItem>
                     </Box>
-                  ))
-                )}
-              </Box>
+                  ))}
+                </Box>
+              )}
             </Box>
           </SortableContext>
           <DragOverlay>
@@ -304,8 +301,6 @@ function Timeline({
     </DndContext>
   )
 }
-
-export {Timeline}
 
 function SortableItem({id, filename, children}) {
   const {attributes, listeners, setNodeRef, transform, transition} =
