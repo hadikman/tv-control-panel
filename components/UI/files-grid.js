@@ -161,7 +161,7 @@ function FilePreview({filename, duration, thumbnails}) {
   }
 
   React.useEffect(() => {
-    if (imageIdx === screenshotCount - 1) {
+    if (imageIdx === screenshotCount) {
       clearInterval(intervalFunRef.current)
       intervalFunRef.current = null
       setImageIdx(0)
@@ -176,7 +176,7 @@ function FilePreview({filename, duration, thumbnails}) {
       }}
     >
       <Image
-        src={thumbnails[imageIdx]}
+        src={imageIdx < screenshotCount ? thumbnails[imageIdx] : thumbnails[0]}
         alt="فریم ویدئو"
         fill
         sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
@@ -185,16 +185,20 @@ function FilePreview({filename, duration, thumbnails}) {
       {isVideo ? (
         <>
           {isPlaying ? (
-            <IconButton size="small" color="error" onClick={handleStopButton}>
-              <StopCircleIcon />
+            <IconButton
+              size="small"
+              sx={{color: 'lightClr.main'}}
+              onClick={handleStopButton}
+            >
+              <StopCircleIcon fontSize="small" />
             </IconButton>
           ) : (
             <IconButton
               size="small"
-              color="secondary.main"
+              sx={{color: 'lightClr.main'}}
               onClick={handlePlayButton}
             >
-              <PlayCircleIcon />
+              <PlayCircleIcon fontSize="small" />
             </IconButton>
           )}
         </>
