@@ -17,7 +17,7 @@ import DoneIcon from '@mui/icons-material/Done'
 import useClickOutsideElement from 'hook/useClickOutsideElement'
 import {milisecondsToTime} from 'util/helper-functions'
 
-export function VideosGrid() {
+export function FilesGrid() {
   const {data, isSuccess} = useMediaFilesData()
 
   let files = []
@@ -161,7 +161,7 @@ function FilePreview({filename, duration, thumbnails}) {
   }
 
   React.useEffect(() => {
-    if (imageIdx === screenshotCount) {
+    if (imageIdx === screenshotCount - 1) {
       clearInterval(intervalFunRef.current)
       intervalFunRef.current = null
       setImageIdx(0)
@@ -176,7 +176,7 @@ function FilePreview({filename, duration, thumbnails}) {
       }}
     >
       <Image
-        src={`/video-thumbnails/${thumbnails[imageIdx]}.jpg`}
+        src={thumbnails[imageIdx]}
         alt="فریم ویدئو"
         fill
         sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'

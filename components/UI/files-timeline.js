@@ -2,7 +2,7 @@ import * as React from 'react'
 import {useRouter} from 'next/router'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {DndContext} from '@dnd-kit/core'
-import {VideosGrid, Timeline} from 'components/UI'
+import {FilesGrid, Timeline} from 'components/UI'
 import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
@@ -105,7 +105,7 @@ export function FilesAndTimeline({sx, ...props}) {
   return (
     <Stack sx={{gap: 2, ...sx}} {...props}>
       <DndContext id="dnd-context-files" onDragEnd={handleDragEnd}>
-        <VideosGrid />
+        <FilesGrid />
       </DndContext>
 
       <Divider sx={{width: '85%', mx: 'auto'}}>

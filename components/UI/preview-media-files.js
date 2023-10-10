@@ -118,7 +118,7 @@ function FilePreview({filename, duration, thumbnails}) {
   return (
     <Box sx={{height: 'var(--wrapper-imgs-height)', position: 'relative'}}>
       <Image
-        src={`/video-thumbnails/${thumbnails[imageIdx]}.jpg`}
+        src={thumbnails[imageIdx]}
         alt="فریم ویدئو"
         fill
         sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
