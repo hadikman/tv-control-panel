@@ -45,9 +45,11 @@ function Zone() {
   let isEmptyStand = false
 
   if (isSuccess) {
-    standsData = data.data
-    totalStands = standsData.length
-    isEmptyStand = standsData.length === 0
+    if (data.success) {
+      standsData = data.data
+      totalStands = standsData.length
+      isEmptyStand = standsData.length === 0
+    }
   }
 
   function handleOnStandName(e) {

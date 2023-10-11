@@ -44,23 +44,28 @@ export function FilesAndTimeline({sx, ...props}) {
   let timelineData = React.useMemo(() => [], [])
 
   if (isSuccess) {
-    timelineData = data.data
+    if (data.success) {
+      timelineData = data.data
+    }
   }
 
   React.useEffect(() => {
     if (isSuccess) {
-      totalMilisecsRef.current = 0
-      timelineData.forEach(item => (totalMilisecsRef.current += +item.duration))
-
-      setAddedFiles(prevState => [
-        ...timelineData.map(item => ({
-          ...item,
-          id: generateKeyCopy(item.id),
-          duration: +item.duration,
-        })),
-      ])
+      if (data.success) {
+        totalMilisecsRef.current = 0
+        timelineData.forEach(
+          item => (totalMilisecsRef.current += +item.duration),
+        )
+        setAddedFiles(prevState => [
+          ...timelineData.map(item => ({
+            ...item,
+            id: generateKeyCopy(item.id),
+            duration: +item.duration,
+          })),
+        ])
+      }
     }
-  }, [isSuccess, timelineData])
+  }, [isSuccess, timelineData, data])
 
   function handleDragEnd(event) {
     const {active} = event
@@ -82,8 +87,14 @@ export function FilesAndTimeline({sx, ...props}) {
   function handleRemoveFile(id) {
     const getVideoObj = addedFiles.find(item => item.id === id)
 
-    totalMilisecsRef.current -= getVideoObj.duration
-    setAddedFiles(prevState => prevState.filter(item => item.id !== id))
+    const isConfirmed = confirm(
+      `آیا فایل ${getVideoObj.filename} از نوار زمان حذف شود؟`,
+    )
+
+    if (isConfirmed) {
+      totalMilisecsRef.current -= getVideoObj.duration
+      setAddedFiles(prevState => prevState.filter(item => item.id !== id))
+    }
   }
 
   function handleOnSaveTimelineState() {
