@@ -51,3 +51,7 @@ export function fetchAndPostData(url, options = {}) {
 
   return res
 }
+
+export function generateListOfIndex(count = 0) {
+  return Array.from({length: count}, (_, i) => i + 1)
+}
