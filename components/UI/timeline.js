@@ -18,14 +18,20 @@ import {
 import {CSS} from '@dnd-kit/utilities'
 import {restrictToHorizontalAxis} from '@dnd-kit/modifiers'
 import Image from 'next/image'
+import useClickOutsideElement from 'hook/useClickOutsideElement'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import InputBase from '@mui/material/InputBase'
 import CircularProgress from '@mui/material/CircularProgress'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ClearIcon from '@mui/icons-material/Clear'
 import SaveIcon from '@mui/icons-material/Save'
+import AddAlarmIcon from '@mui/icons-material/AddAlarm'
+import DoneIcon from '@mui/icons-material/Done'
 import {milisecondsToTime, truncateWords} from 'util/helper-functions'
 
 const customScrollbar = {
@@ -46,24 +52,19 @@ const customScrollbar = {
   },
 }
 
-export function Timeline({
-  id,
-  playDuration,
-  filesArr,
-  removeFileFn,
-  updateArrStateFn,
-  saveTimelineFn,
-  isSending,
-  ...props
-}) {
+export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
+  const [timelineFiles, setTimelineFiles] = React.useState([])
+  const [totalDuration, setTotalDuration] = React.useState(0)
   const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
-  const addedVideosCount = filesArr.length
-  const isEmptyTimeline = addedVideosCount === 0
+
+  const addedFilesCount = timelineFiles.length
+
+  const isEmptyTimeline = addedFilesCount === 0
   const isActiveGrabbedItem = activeGrabbedItem.id !== 0
 
   const timeChunkInMilisec = 300000 // 5 minutes
   const occupiedCellCount =
-    playDuration !== 0 ? playDuration / timeChunkInMilisec : 0
+    totalDuration !== 0 ? totalDuration / timeChunkInMilisec : 0
 
   const timeCells = [
     ...Array.from({length: 145}, (_, i) => ({
@@ -79,19 +80,39 @@ export function Timeline({
     }),
   )
 
+  React.useEffect(() => {
+    if (filesArr.length > 0) {
+      setTimelineFiles(prevState => [...prevState, ...filesArr])
+    }
+  }, [filesArr])
+
+  React.useEffect(() => {
+    if (timelineFiles.length > 0) {
+      const total = timelineFiles.reduce((acc, currentFile) => {
+        return acc + currentFile.duration
+      }, 0)
+
+      setTotalDuration(prevState => total)
+    }
+  }, [timelineFiles])
+
   function handleDragStart(event) {
     const {active} = event
 
-    const getVideoObj = filesArr.find(item => item.id === active.id)
+    const fileObj = timelineFiles.find(item => item.id === active.id)
 
-    setActiveGrabbedItem(prevState => ({...prevState, ...getVideoObj}))
+    setActiveGrabbedItem(prevState => ({...prevState, ...fileObj}))
   }
 
   function handleDragEnd(event) {
     const {active, over} = event
 
+    if (!over) {
+      return
+    }
+
     if (active.id !== over.id) {
-      updateArrStateFn(items => {
+      setTimelineFiles(items => {
         const oldIndex = items.findIndex(item => item.id === active.id)
         const newIndex = items.findIndex(item => item.id === over.id)
 
@@ -100,6 +121,30 @@ export function Timeline({
     }
 
     setActiveGrabbedItem({id: 0})
+  }
+
+  function handleUpdateTimelineFiles(newUpdateFile) {
+    const {id, duration} = newUpdateFile
+
+    const updateFileObj = timelineFiles.find(file => file.id === id)
+
+    updateFileObj.duration = duration
+
+    setTotalDuration(prevState => prevState + duration)
+    setTimelineFiles(prevState => [...timelineFiles])
+  }
+
+  function handleRemoveFile(id) {
+    const fileObj = timelineFiles.find(item => item.id === id)
+
+    const isConfirmed = confirm(
+      `آیا فایل ${fileObj.filename} از نوار زمان حذف شود؟`,
+    )
+
+    if (isConfirmed) {
+      setTotalDuration(prevState => prevState - fileObj.duration)
+      setTimelineFiles(prevState => prevState.filter(item => item.id !== id))
+    }
   }
 
   return (
@@ -112,7 +157,7 @@ export function Timeline({
       modifiers={[restrictToHorizontalAxis]}
     >
       <Box {...props}>
-        <Typography>مدت زمان پخش {milisecondsToTime(playDuration)}</Typography>
+        <Typography>مدت زمان پخش {milisecondsToTime(totalDuration)}</Typography>
 
         <Box sx={{bgcolor: 'darkClr.main', my: 1}}>
           <Box
@@ -189,7 +234,7 @@ export function Timeline({
 
           <SortableContext
             id="droppable-sortable-area"
-            items={filesArr}
+            items={timelineFiles}
             strategy={horizontalListSortingStrategy}
           >
             <Box sx={{display: 'grid', p: 1}}>
@@ -205,73 +250,43 @@ export function Timeline({
                 <Box
                   sx={{
                     '--thumbnail-size': '70px',
+                    '--header-frame-height': '24px',
+                    '--edge-gap': '4px',
+                    '--timeline-height': '11rem',
+                    '--file-wrapper-height':
+                      'calc(var(--timeline-height) - 1rem)',
+                    height: 'var(--timeline-height)',
                     display: 'grid',
                     gridAutoFlow: 'column',
-                    gridAutoColumns: 'var(--thumbnail-size)',
-                    gridAutoRows: 'var(--thumbnail-size)',
-                    gap: '8px',
+                    gridAutoColumns:
+                      'calc(var(--thumbnail-size) + (var(--edge-gap) * 2))',
+                    gridAutoRows:
+                      'calc(var(--thumbnail-size) + var(--header-frame-height) + var(--edge-gap))',
+                    gap: 'var(--edge-gap)',
+                    bgcolor: 'hsl(0 0% 25%)',
                     p: 1,
+                    px: 3,
                     overflowX: 'auto',
                     ...customScrollbar,
                   }}
                 >
-                  {filesArr.map(({id, filename, thumbnail}) => (
+                  {timelineFiles.map(({id, filename, duration, thumbnail}) => (
                     <Box
                       key={id}
                       sx={{
-                        bgcolor: 'lightClr.main',
+                        height: 'var(--file-wrapper-height)',
+                        display: 'grid',
                         position: 'relative',
-                        overflow: 'hidden',
-                        ':hover': {
-                          '.info': {
-                            transform: 'translateY(100%)',
-                            visibility: 'hidden',
-                            opacity: 0,
-                          },
-                        },
                       }}
                     >
-                      <Image
-                        src={thumbnail}
-                        alt="عکس شاخص ویدئو"
-                        fill
-                        sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
-                        style={{objectFit: 'cover'}}
+                      <FileCard
+                        id={id}
+                        filename={filename}
+                        duration={duration}
+                        thumbnail={thumbnail}
+                        updateFileFn={handleUpdateTimelineFiles}
+                        removeFileFn={handleRemoveFile}
                       />
-                      <Typography
-                        className="info"
-                        sx={{
-                          position: 'absolute',
-                          inset: '50% 0 0',
-                          fontSize: '0.75rem',
-                          lineHeight: 1.25,
-                          color: 'lightClr.main',
-                          bgcolor: 'hsl(0 0% 10% / 0.25)',
-                          p: '2px',
-                          transition: '0.2s ease-out, transform 0.3s',
-                        }}
-                      >
-                        {truncateWords(filename, 17)}
-                      </Typography>
-
-                      <IconButton
-                        color="error"
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                          p: '4px',
-                        }}
-                        onClick={() => removeFileFn(id)}
-                      >
-                        <ClearIcon sx={{fontSize: '1.125rem'}} />
-                      </IconButton>
-
-                      <SortableItem id={id} filename={filename}>
-                        <IconButton>
-                          <DragIndicatorIcon sx={{color: 'darkClr.main'}} />
-                        </IconButton>
-                      </SortableItem>
                     </Box>
                   ))}
                 </Box>
@@ -282,7 +297,8 @@ export function Timeline({
             {isActiveGrabbedItem ? (
               <Item
                 filename={activeGrabbedItem.filename}
-                thumbnails={activeGrabbedItem.thumbnails}
+                // thumbnails={activeGrabbedItem.thumbnails}
+                thumbnail={activeGrabbedItem.thumbnail}
               />
             ) : null}
           </DragOverlay>
@@ -293,12 +309,262 @@ export function Timeline({
           endIcon={isSending ? <CircularProgress size={18} /> : <SaveIcon />}
           disabled={isSending ? true : false}
           color="success"
-          onClick={saveTimelineFn}
+          onClick={() => saveTimelineFn(timelineFiles)}
         >
           ذخیره
         </Button>
       </Box>
     </DndContext>
+  )
+}
+
+function FileCard({
+  id,
+  filename,
+  duration,
+  thumbnail,
+  updateFileFn,
+  removeFileFn,
+}) {
+  const [openTimePicker, setOpenTimePicker] = React.useState(false)
+  const isTimePicker = openTimePicker
+
+  const isVideo = filename.endsWith('.mp4')
+
+  function handleUpdateFileDuration(newDuration) {
+    updateFileFn({id, duration: newDuration})
+  }
+
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateRows: 'var(--header-frame-height) var(--thumbnail-size)',
+        alignSelf: 'end',
+        bgcolor: 'lightClr.main',
+        p: '0 var(--edge-gap) var(--edge-gap)',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 0.25,
+          bgcolor: 'lightClr.main',
+        }}
+      >
+        <SortableItem id={id} filename={filename}>
+          <IconButton
+            size="small"
+            sx={{p: 0, ':hover': {color: 'darkClr.main'}}}
+          >
+            <DragIndicatorIcon fontSize="small" />
+          </IconButton>
+        </SortableItem>
+
+        <IconButton
+          size="small"
+          sx={{p: 0, ':hover': {color: 'error.main'}}}
+          onClick={() => removeFileFn(id)}
+        >
+          <ClearIcon fontSize="small" />
+        </IconButton>
+
+        {isVideo ? null : isTimePicker ? (
+          <TimePicker
+            duration={duration}
+            updateFn={handleUpdateFileDuration}
+            closeFn={setOpenTimePicker}
+          />
+        ) : (
+          <IconButton
+            size="small"
+            onClick={setOpenTimePicker}
+            sx={{p: 0, ':hover': {color: 'info.main'}}}
+          >
+            <AddAlarmIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+
+      <Box
+        sx={{
+          height: '100%',
+          bgcolor: 'lightClr.main',
+          position: 'relative',
+          overflow: 'hidden',
+          ':hover': {
+            '.info': {
+              transform: 'translateY(100%)',
+              visibility: 'hidden',
+              opacity: 0,
+            },
+          },
+        }}
+      >
+        <Image
+          src={thumbnail}
+          alt="عکس شاخص ویدئو"
+          fill
+          sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
+          style={{objectFit: 'cover'}}
+        />
+        <Typography
+          className="info"
+          sx={{
+            position: 'absolute',
+            inset: '40% 0 0',
+            fontSize: '0.75rem',
+            lineHeight: 1.25,
+            color: 'lightClr.main',
+            bgcolor: 'hsl(0 0% 10% / 0.70)',
+            p: '2px',
+            transition: '0.2s ease-out, transform 0.3s',
+          }}
+        >
+          {truncateWords(filename, 17)}
+        </Typography>
+      </Box>
+    </Box>
+  )
+}
+
+function TimePicker({duration, updateFn, closeFn}) {
+  const [seconds, setSeconds] = React.useState('')
+  const [minutes, setMinutes] = React.useState('')
+  const {ref: clickOutsideElRef} = useClickOutsideElement(closeFn)
+
+  function handleOnChangeSecond(event) {
+    const number = event.target.value
+
+    if (/^\d{0,2}$/.test(number)) {
+      if (+number <= 60) {
+        setSeconds(number)
+      }
+
+      if (isNaN(+number)) {
+        setSeconds('')
+      }
+    }
+  }
+
+  function handleOnChangeMinute(event) {
+    const number = event.target.value
+
+    if (/^\d{0,2}$/.test(number)) {
+      if (+number <= 60) {
+        setMinutes(number)
+      }
+
+      if (isNaN(+number)) {
+        setMinutes('')
+      }
+    }
+  }
+
+  function handleOnSubmitTimePicker(event) {
+    event.preventDefault()
+
+    const secondsToMilisecs = seconds * 1000 || 0
+    const minutesToMilisecs = minutes * 60 * 1000 || 0
+    const totalMilisec = secondsToMilisecs + minutesToMilisecs
+
+    updateFn(totalMilisec)
+    closeFn(false)
+  }
+
+  return (
+    <Stack
+      component="form"
+      sx={{
+        position: 'absolute',
+        top: '0',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '160%',
+        bgcolor: 'lightClr.main',
+        border: '1px solid',
+        borderColor: 'info.light',
+        borderRadius: 'var(--sm-corner)',
+        p: 1,
+        boxShadow: '0 6px 12px 2px hsl(0 0% 0% / 0.2)',
+        zIndex: 10,
+        input: {
+          '&::placeholder': {fontSize: '0.75em'},
+        },
+      }}
+      onSubmit={handleOnSubmitTimePicker}
+      ref={clickOutsideElRef}
+    >
+      <Grid
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '2fr 1.75rem',
+          alignItems: 'center',
+          gap: 0.5,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            borderRadius: 'var(--sm-corner)',
+            p: '4px',
+            ':hover': {
+              bgcolor: 'hsl(0 0% 90%)',
+            },
+          }}
+        >
+          <InputBase
+            id="second"
+            type="text"
+            autoFocus
+            value={seconds}
+            placeholder="ثانیه"
+            inputProps={{maxLength: 2}}
+            onChange={handleOnChangeSecond}
+          />
+
+          {':'}
+
+          <InputBase
+            id="minute"
+            type="text"
+            value={minutes}
+            placeholder="دقیقه"
+            inputProps={{maxLength: 2}}
+            onChange={handleOnChangeMinute}
+          />
+        </Box>
+
+        <Button type="submit" sx={{minWidth: 'unset', fontSize: '6px'}}>
+          <DoneIcon />
+        </Button>
+
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '111%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: -2,
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              bgcolor: 'lightClr.main',
+              border: '1px solid',
+              borderColor: 'info.light',
+              borderRadius: 'var(--sm-corner)',
+              p: '2px 6px',
+            }}
+          >
+            {milisecondsToTime(duration)}
+          </Typography>
+        </Box>
+      </Grid>
+    </Stack>
   )
 }
 
@@ -325,33 +591,46 @@ function SortableItem({id, filename, children}) {
   )
 }
 
-const Item = React.forwardRef(({filename, ...props}, ref) => {
+const Item = React.forwardRef(({filename, thumbnail, ...props}, ref) => {
   return (
     <Box
       sx={{
-        width: '70px',
-        height: '70px',
+        width: '75px',
+        height: '75px',
         bgcolor: 'lightClr.main',
         borderRadius: 'var(--md-corner)',
         color: 'darkClr.main',
-        border: '2px solid',
-        borderColor: 'hsl(0 0% 75%)',
+        border: '3px solid',
+        borderColor: 'hsl(0 0% 55%)',
         boxShadow: '0 0 10px 4px hsl(0 0% 15% / 0.45)',
+        filter: 'grayscale(1)',
+        mt: 3,
+        overflow: 'hidden',
         position: 'relative',
       }}
       {...props}
       ref={ref}
     >
-      <Typography
+      <Image
+        src={thumbnail}
+        alt="عکس شاخص ویدئو"
+        fill
+        sizes='sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"'
+        style={{objectFit: 'cover'}}
+      />
+      <Box
         sx={{
           position: 'absolute',
-          inset: '-6px',
-          fontSize: '0.875rem',
-          p: '12px',
+          inset: '50% 0 0',
+          fontSize: '0.75rem',
+          lineHeight: 1.25,
+          color: 'lightClr.main',
+          bgcolor: 'hsl(0 0% 10% / 0.50)',
+          p: 1,
         }}
       >
         {truncateWords(filename, 17)}
-      </Typography>
+      </Box>
     </Box>
   )
 })

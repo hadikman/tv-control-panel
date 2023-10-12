@@ -39,7 +39,6 @@ export function FilesAndTimeline({sx, ...props}) {
     },
   })
   const [addedFiles, setAddedFiles] = React.useState([])
-  const totalMilisecsRef = React.useRef(0)
 
   let timelineData = React.useMemo(() => [], [])
 
@@ -52,10 +51,6 @@ export function FilesAndTimeline({sx, ...props}) {
   React.useEffect(() => {
     if (isSuccess) {
       if (data.success) {
-        totalMilisecsRef.current = 0
-        timelineData.forEach(
-          item => (totalMilisecsRef.current += +item.duration),
-        )
         setAddedFiles(prevState => [
           ...timelineData.map(item => ({
             ...item,
@@ -71,10 +66,7 @@ export function FilesAndTimeline({sx, ...props}) {
     const {active} = event
     const {id, filename, duration, thumbnails} = active.data.current
 
-    totalMilisecsRef.current += +duration
-
     setAddedFiles(prevState => [
-      ...prevState,
       {
         id: generateKeyCopy(id),
         filename,
@@ -84,22 +76,8 @@ export function FilesAndTimeline({sx, ...props}) {
     ])
   }
 
-  function handleRemoveFile(id) {
-    const getVideoObj = addedFiles.find(item => item.id === id)
-
-    const isConfirmed = confirm(
-      `آیا فایل ${getVideoObj.filename} از نوار زمان حذف شود؟`,
-    )
-
-    if (isConfirmed) {
-      totalMilisecsRef.current -= getVideoObj.duration
-      setAddedFiles(prevState => prevState.filter(item => item.id !== id))
-    }
-  }
-
-  function handleOnSaveTimelineState() {
-    const clonedAddedFiles = [...addedFiles]
-    const manipulatedTimelineObj = clonedAddedFiles.map(
+  function handleOnSaveTimelineState(timelineFiles) {
+    const manipulatedTimelineObj = timelineFiles.map(
       ({filename, duration, thumbnail}, idx) => ({
         id: idx,
         filename,
@@ -107,10 +85,9 @@ export function FilesAndTimeline({sx, ...props}) {
         thumbnail,
       }),
     )
-    const timelineData = {zoneID: +q, timeline: manipulatedTimelineObj}
+    const newTimelineData = {zoneID: +q, timeline: manipulatedTimelineObj}
 
-    // TODO send a POST request to the API
-    mutate(timelineData)
+    mutate(newTimelineData)
   }
 
   return (
@@ -127,9 +104,6 @@ export function FilesAndTimeline({sx, ...props}) {
         <Timeline
           id="dnd-context-timeline"
           filesArr={addedFiles}
-          playDuration={totalMilisecsRef.current}
-          removeFileFn={handleRemoveFile}
-          updateArrStateFn={setAddedFiles}
           saveTimelineFn={handleOnSaveTimelineState}
           isSending={isSending}
         />
