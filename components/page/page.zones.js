@@ -1,19 +1,36 @@
 import * as React from 'react'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
-import {ZonesCard} from 'components/UI'
+import {ZonesCard, SendButton} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
-import {zones} from 'util/dummy-data'
 import {fetchAndPostData} from 'util/helper-functions'
 import {GET_ZONES_API, ADD_ZONE_API} from 'util/api-url'
 
 const GET_ZONES_URL = process.env.NEXT_PUBLIC_DOMAIN + GET_ZONES_API
 const ADD_ZONE_URL = process.env.NEXT_PUBLIC_DOMAIN + ADD_ZONE_API
+
+const customScrollbar = {
+  '&::-webkit-scrollbar': {
+    width: '0.45rem',
+  },
+  '&::-webkit-scrollbar-track': {
+    bgcolor: 'lightClr.main',
+    p: 1,
+    borderRadius: '10rem',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    width: '8rem',
+    bgcolor: 'hsl(0 0% 55%)',
+    borderRadius: '10rem',
+    ':hover': {
+      bgcolor: 'hsl(0 0% 35%)',
+    },
+  },
+}
 
 function ZonesPage({...props}) {
   const queryClient = useQueryClient()
@@ -21,7 +38,11 @@ function ZonesPage({...props}) {
     queryKey: ['zones-data'],
     queryFn: () => fetchAndPostData(GET_ZONES_URL),
   })
-  const {mutate} = useMutation({
+  const {
+    mutate,
+    isLoading: isSending,
+    isSuccess: isSent,
+  } = useMutation({
     mutationFn: newZone => {
       return fetchAndPostData(ADD_ZONE_URL, {
         body: JSON.stringify(newZone),
@@ -32,8 +53,11 @@ function ZonesPage({...props}) {
     },
   })
   const [zoneName, setZoneName] = React.useState('')
+  const [inputErrorMessage, setInputErrorMessage] = React.useState('')
 
   let zonesData = []
+
+  const isInputError = inputErrorMessage !== ''
 
   if (isSuccess) {
     zonesData = data.data
@@ -43,19 +67,29 @@ function ZonesPage({...props}) {
     setZoneName(e.target.value)
   }
 
+  function handleOnFocusInput() {
+    setInputErrorMessage('')
+  }
+
   function handleOnSubmitForm(e) {
     e.preventDefault()
 
-    // TODO send a POST request to the API
+    const isEmptyInput = zoneName === ''
+
+    if (isEmptyInput) {
+      setInputErrorMessage('وارد کردن یک نام برای زون الزامی است')
+
+      return
+    }
+
     mutate({name: zoneName})
-    // console.log({name: zoneName})
 
     setZoneName('')
   }
 
   return (
     <Box {...props}>
-      <Box sx={{mb: 1, py: 3}}>
+      <Box sx={{height: '80px', mb: 1, py: 1}}>
         <Stack
           component="form"
           sx={{flexDirection: 'row', alignItems: 'baseline', gap: 4}}
@@ -63,23 +97,21 @@ function ZonesPage({...props}) {
         >
           <TextField
             id="add-zone"
-            placeholder="نام زون جدید"
-            value={zoneName}
-            // helperText="فضای رزرو پیغام خطا"
             variant="standard"
+            label="زون جدید"
+            placeholder="یک نام وارد نمایید"
+            value={zoneName}
+            helperText={inputErrorMessage}
+            error={isInputError}
             onChange={handleInput}
+            inputProps={{onFocus: handleOnFocusInput}}
           />
 
-          <Button
-            variant="contained"
-            sx={{
-              fontSize: '0.875rem',
-            }}
-            color="accentClr"
-            type="submit"
-          >
-            افزودن
-          </Button>
+          <SendButton
+            lableText="افزودن"
+            isSending={isSending}
+            isSent={isSent}
+          />
         </Stack>
       </Box>
 
@@ -90,10 +122,10 @@ function ZonesPage({...props}) {
           height: 472,
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          alignContent: 'center',
           gap: 3,
           py: 3,
           overflowY: 'auto',
+          ...customScrollbar,
         }}
       >
         {isLoading ? (
