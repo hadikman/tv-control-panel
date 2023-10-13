@@ -18,6 +18,7 @@ import {
 import {CSS} from '@dnd-kit/utilities'
 import {restrictToHorizontalAxis} from '@dnd-kit/modifiers'
 import Image from 'next/image'
+import {SendButton} from 'components/UI'
 import useClickOutsideElement from 'hook/useClickOutsideElement'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -26,7 +27,6 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import InputBase from '@mui/material/InputBase'
-import CircularProgress from '@mui/material/CircularProgress'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import ClearIcon from '@mui/icons-material/Clear'
 import SaveIcon from '@mui/icons-material/Save'
@@ -41,6 +41,7 @@ const customScrollbar = {
   '&::-webkit-scrollbar-track': {
     bgcolor: 'darkClr.main',
     p: 1,
+    borderRadius: '10rem',
   },
   '&::-webkit-scrollbar-thumb': {
     width: '8rem',
@@ -52,7 +53,14 @@ const customScrollbar = {
   },
 }
 
-export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
+export function Timeline({
+  id,
+  filesArr,
+  saveTimelineFn,
+  isSending,
+  isSent,
+  ...props
+}) {
   const [timelineFiles, setTimelineFiles] = React.useState([])
   const [totalDuration, setTotalDuration] = React.useState(0)
   const [activeGrabbedItem, setActiveGrabbedItem] = React.useState({id: 0})
@@ -305,22 +313,19 @@ export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
             {isActiveGrabbedItem ? (
               <Item
                 filename={activeGrabbedItem.filename}
-                // thumbnails={activeGrabbedItem.thumbnails}
                 thumbnail={activeGrabbedItem.thumbnail}
               />
             ) : null}
           </DragOverlay>
         </Box>
 
-        <Button
-          variant="contained"
-          endIcon={isSending ? <CircularProgress size={18} /> : <SaveIcon />}
-          disabled={isSending ? true : false}
-          color="success"
+        <SendButton
+          lableText="ذخیره"
+          isSending={isSending}
+          isSent={isSent}
+          iconCmp={<SaveIcon />}
           onClick={() => saveTimelineFn(timelineFiles)}
-        >
-          ذخیره
-        </Button>
+        />
       </Box>
     </DndContext>
   )

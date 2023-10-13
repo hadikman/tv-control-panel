@@ -28,7 +28,11 @@ export function FilesAndTimeline({sx, ...props}) {
       }),
     refetchOnWindowFocus: false,
   })
-  const {mutate, isLoading: isSending} = useMutation({
+  const {
+    mutate,
+    isLoading: isSending,
+    isSuccess: isSent,
+  } = useMutation({
     mutationFn: timelineNewData => {
       return fetchAndPostData(SAVE_ZONE_TIMELINE_URL, {
         body: JSON.stringify(timelineNewData),
@@ -106,6 +110,7 @@ export function FilesAndTimeline({sx, ...props}) {
           filesArr={addedFiles}
           saveTimelineFn={handleOnSaveTimelineState}
           isSending={isSending}
+          isSent={isSent}
         />
       </Box>
     </Stack>
