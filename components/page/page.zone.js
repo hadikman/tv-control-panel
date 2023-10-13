@@ -1,15 +1,13 @@
 import * as React from 'react'
 import {useRouter} from 'next/router'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
-import {FilesAndTimeline} from 'components/UI'
+import {FilesAndTimeline, SendButton} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
-import Button from '@mui/material/Button'
 import Skeleton from '@mui/material/Skeleton'
-import AddIcon from '@mui/icons-material/Add'
 import {fetchAndPostData} from 'util/helper-functions'
 import {GET_STANDS_API, ADD_STAND_API} from 'util/api-url'
 
@@ -27,7 +25,11 @@ function Zone() {
         body: JSON.stringify({zoneID: +q}),
       }),
   })
-  const {mutate} = useMutation({
+  const {
+    mutate,
+    isLoading: isSending,
+    isSuccess: isSent,
+  } = useMutation({
     mutationFn: newStand => {
       return fetchAndPostData(ADD_STAND_URL, {
         body: JSON.stringify(newStand),
@@ -39,10 +41,15 @@ function Zone() {
   })
   const [standName, setStandName] = React.useState('')
   const [ipNumString, setIpNumString] = React.useState('')
+  const [standNameErrorMessage, setStandNameErrorMessage] = React.useState('')
+  const [ipNumErrorMessage, setIpNumErrorMessage] = React.useState('')
 
   let standsData = []
   let totalStands = 0
   let isEmptyStand = false
+
+  const isStandNameError = standNameErrorMessage !== ''
+  const isIpNumError = ipNumErrorMessage !== ''
 
   if (isSuccess) {
     if (data.success) {
@@ -60,10 +67,32 @@ function Zone() {
     setIpNumString(e.target.value)
   }
 
+  function handleOnFocusStandNameInput() {
+    setStandNameErrorMessage('')
+  }
+
+  function handleOnFocusIpNumInput() {
+    setIpNumErrorMessage('')
+  }
+
   function handleOnSubmitForm(e) {
     e.preventDefault()
 
-    // TODO send a POST request to the API
+    const isEmptyStandName = standName === ''
+    const isEmptyIpNUm = ipNumString === ''
+    const isEmptyInput = isEmptyStandName || isEmptyIpNUm
+
+    if (isEmptyInput) {
+      if (isEmptyStandName) {
+        setStandNameErrorMessage('وارد کردن یک نام برای استند الزامی است')
+      }
+      if (isEmptyIpNUm) {
+        setIpNumErrorMessage('وارد کردن یک آی پی برای استند الزامی است')
+      }
+
+      return
+    }
+
     mutate({
       name: standName,
       ip: ipNumString,
@@ -87,7 +116,7 @@ function Zone() {
         </Grid>
       </Box>
 
-      <Box sx={{mb: 1, py: 3}}>
+      <Box sx={{height: '80px', mb: 1, py: 1}}>
         <Grid
           container
           component="form"
@@ -96,30 +125,32 @@ function Zone() {
         >
           <TextField
             id="stand-name"
-            placeholder="نام استند"
-            value={standName}
             variant="standard"
+            label="استند جدید"
+            placeholder="یک نام وارد نمایید"
+            helperText={standNameErrorMessage}
+            error={isStandNameError}
+            value={standName}
             onChange={handleOnStandName}
+            inputProps={{onFocus: handleOnFocusStandNameInput}}
           />
           <TextField
             id="stand-ip"
-            placeholder="شماره آی پی"
-            value={ipNumString}
             variant="standard"
+            label="آی پی جدید"
+            placeholder="شماره آی پی"
+            helperText={ipNumErrorMessage}
+            error={isIpNumError}
+            value={ipNumString}
             onChange={handleOnIpNumString}
+            inputProps={{onFocus: handleOnFocusIpNumInput}}
           />
 
-          <Button
-            variant="contained"
-            sx={{
-              fontSize: '0.875rem',
-            }}
-            color="success"
-            type="submit"
-            endIcon={<AddIcon />}
-          >
-            افزودن استند
-          </Button>
+          <SendButton
+            lableText="افزودن"
+            isSending={isSending}
+            isSent={isSent}
+          />
         </Grid>
       </Box>
 
