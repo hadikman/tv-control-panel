@@ -55,3 +55,8 @@ export function fetchAndPostData(url, options = {}) {
 export function generateListOfIndex(count = 0) {
   return Array.from({length: count}, (_, i) => i + 1)
 }
+
+export function preventClicking(e) {
+  e.preventDefault()
+  e.stopPropagation()
+}
