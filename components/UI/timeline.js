@@ -66,7 +66,7 @@ export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
   const occupiedCellCount =
     totalDuration !== 0 ? totalDuration / timeChunkInMilisec : 0
 
-  const timeCells = [
+  const durationTimeLength = [
     ...Array.from({length: 145}, (_, i) => ({
       cellLength: milisecondsToTime(timeChunkInMilisec * i),
       occupiedCell: i < occupiedCellCount ? 100 : 0,
@@ -81,8 +81,16 @@ export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
   )
 
   React.useEffect(() => {
-    if (filesArr.length > 0) {
-      setTimelineFiles(prevState => [...prevState, ...filesArr])
+    const filesArrCount = filesArr.length
+    const isFilesArr = filesArrCount > 0
+    const isSingleFile = filesArrCount === 1
+
+    if (isFilesArr) {
+      if (isSingleFile) {
+        setTimelineFiles(prevState => [...prevState, ...filesArr])
+      } else {
+        setTimelineFiles(prevState => filesArr)
+      }
     }
   }, [filesArr])
 
@@ -185,7 +193,7 @@ export function Timeline({id, filesArr, saveTimelineFn, isSending, ...props}) {
                 ...customScrollbar,
               }}
             >
-              {timeCells.map(({cellLength, occupiedCell}, idx) => (
+              {durationTimeLength.map(({cellLength, occupiedCell}, idx) => (
                 <Box key={idx}>
                   <Box
                     data-top-side-container
