@@ -6,6 +6,25 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import ClearIcon from '@mui/icons-material/Clear'
 
+const customScrollbar = {
+  '&::-webkit-scrollbar': {
+    width: '0.45rem',
+  },
+  '&::-webkit-scrollbar-track': {
+    bgcolor: 'lightClr.main',
+    p: 1,
+    borderRadius: '10rem',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    width: '8rem',
+    bgcolor: 'hsl(0 0% 55%)',
+    borderRadius: '10rem',
+    ':hover': {
+      bgcolor: 'hsl(0 0% 35%)',
+    },
+  },
+}
+
 export function PreviewMediaFiles() {
   const {data, isSuccess} = useMediaFilesData()
 
@@ -30,7 +49,10 @@ export function PreviewMediaFiles() {
         '--card-size': '6rem',
         '--gap': '6px',
         minHeight: 'var(--card-size)',
+        maxHeight: '24rem',
         gap: 'var(--gap)',
+        overflowY: 'auto',
+        ...customScrollbar,
       }}
     >
       {isSuccess &&
