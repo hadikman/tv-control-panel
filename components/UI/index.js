@@ -1,4 +1,4 @@
-export * from './zones-card'
+export * from './zone-card'
 export * from './dropzone'
 export * from './files-timeline'
 export * from './draggable'

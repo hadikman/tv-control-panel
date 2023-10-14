@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
-import {ZonesCard, SendButton} from 'components/UI'
+import {ZoneCard, SendButton} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -133,7 +133,7 @@ function ZonesPage({...props}) {
         ) : (
           zonesData.map(({id, ...props}) => (
             <Box key={id} sx={{width: '100%'}}>
-              <ZonesCard
+              <ZoneCard
                 slug={`zone?q=${id}`}
                 videosCount={
                   id === 1

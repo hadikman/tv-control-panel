@@ -10,7 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import AddIcon from '@mui/icons-material/Add'
 
-function ZonesCard({name, videosCount, slug}) {
+function ZoneCard({name, videosCount, slug}) {
   const isLoading = false
   const videosThumbnail = [...videosCount]
   const videosThumbnailCount = videosThumbnail.length
@@ -113,4 +113,4 @@ function ZonesCard({name, videosCount, slug}) {
   )
 }
 
-export {ZonesCard}
+export {ZoneCard}
