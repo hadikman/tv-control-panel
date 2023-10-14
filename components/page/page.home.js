@@ -20,12 +20,12 @@ export default function HomePage({...props}) {
     queryFn: () => fetchAndPostData(URL),
   })
 
-  let serverStatus = []
-  let overallStatus = []
+  let serverStatusData = []
+  let overallStatusData = []
 
   if (isSuccess) {
-    serverStatus = data.data.serverStatus
-    overallStatus = data.data.overallStatus
+    serverStatusData = data.data.serverStatus
+    overallStatusData = data.data.overallStatus
   }
 
   return (
@@ -34,8 +34,8 @@ export default function HomePage({...props}) {
         <Grid container sx={{justifyContent: 'space-between', gap: 1}}>
           {isLoading ? (
             <SkeletonsGroup count={3} width="100%" height={260} />
-          ) : (
-            serverStatus.map(({hardware, usage = 14, additionalStatus}) => (
+          ) : isSuccess ? (
+            serverStatusData.map(({hardware, usage = 14, additionalStatus}) => (
               <Grid key={hardware} item sx={{position: 'relative'}}>
                 <GaugeMeter speed={usage} />
 
@@ -74,7 +74,7 @@ export default function HomePage({...props}) {
                 </Stack>
               </Grid>
             ))
-          )}
+          ) : null}
         </Grid>
 
         <Box sx={{py: 3}}>
@@ -91,9 +91,9 @@ export default function HomePage({...props}) {
         sx={{alignItems: 'center', justifyContent: 'space-around', mt: 3}}
       >
         {isLoading ? (
-          <SkeletonsGroup count={3} width="100%" height={160} />
-        ) : (
-          overallStatus.map(({statusName, value}) => (
+          <SkeletonsGroup count={3} width="100%" height={130} />
+        ) : isSuccess ? (
+          overallStatusData.map(({statusName, value}) => (
             <Grid key={statusName} item bgcolor="primary.main" xs={3}>
               <Card>
                 <CardContent>
@@ -111,7 +111,7 @@ export default function HomePage({...props}) {
               </Card>
             </Grid>
           ))
-        )}
+        ) : null}
       </Grid>
     </Box>
   )
