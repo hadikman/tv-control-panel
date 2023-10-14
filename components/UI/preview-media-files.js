@@ -4,7 +4,9 @@ import {FileCard} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import Skeleton from '@mui/material/Skeleton'
 import ClearIcon from '@mui/icons-material/Clear'
+import {generateListOfIndex} from 'util/helper-functions'
 
 const customScrollbar = {
   '&::-webkit-scrollbar': {
@@ -26,13 +28,15 @@ const customScrollbar = {
 }
 
 export function PreviewMediaFiles() {
-  const {data, isSuccess} = useMediaFilesData()
+  const {data, isLoading, isSuccess} = useMediaFilesData()
 
-  let files = []
+  let filesData = []
+
+  const generatedListOfIndex = generateListOfIndex(3)
 
   if (isSuccess) {
     if (data.success) {
-      files = data.data.files
+      filesData = data.data.files
     }
   }
 
@@ -55,36 +59,47 @@ export function PreviewMediaFiles() {
         ...customScrollbar,
       }}
     >
-      {isSuccess &&
-        files.map(({id, filename, duration, thumbnails}) => (
-          <FileCard
-            key={id}
-            filename={filename}
-            duration={duration}
-            thumbnails={thumbnails}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                flexGrow: 1,
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                pl: 0.5,
-              }}
+      {isLoading
+        ? generatedListOfIndex.map(item => (
+            <Grid key={item} item>
+              <Skeleton
+                variant="rounded"
+                width="var(--card-size)"
+                height="var(--card-size)"
+              />
+            </Grid>
+          ))
+        : isSuccess
+        ? filesData.map(({id, filename, duration, thumbnails}) => (
+            <FileCard
+              key={id}
+              filename={filename}
+              duration={duration}
+              thumbnails={thumbnails}
             >
-              {filename}
-            </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  flexGrow: 1,
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  pl: 0.5,
+                }}
+              >
+                {filename}
+              </Typography>
 
-            <IconButton
-              size="small"
-              color="error"
-              onClick={() => handleDeleteMedia(id)}
-            >
-              <ClearIcon fontSize="small" />
-            </IconButton>
-          </FileCard>
-        ))}
+              <IconButton
+                size="small"
+                color="error"
+                onClick={() => handleDeleteMedia(id)}
+              >
+                <ClearIcon fontSize="small" />
+              </IconButton>
+            </FileCard>
+          ))
+        : null}
     </Grid>
   )
 }
