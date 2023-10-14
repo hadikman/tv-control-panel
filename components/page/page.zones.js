@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
-import {fetchAndPostData} from 'util/helper-functions'
+import {fetchAndPostData, generateListOfIndex} from 'util/helper-functions'
 import {GET_ZONES_API, ADD_ZONE_API} from 'util/api-url'
 
 const GET_ZONES_URL = process.env.NEXT_PUBLIC_DOMAIN + GET_ZONES_API
@@ -58,6 +58,8 @@ function ZonesPage({...props}) {
   let zonesData = []
 
   const isInputError = inputErrorMessage !== ''
+
+  const generatedListOfIndex = generateListOfIndex(4)
 
   if (isSuccess) {
     zonesData = data.data
@@ -119,40 +121,52 @@ function ZonesPage({...props}) {
 
       <Grid
         sx={{
-          height: 472,
+          '--zone-container-height': '472px',
+          '--zone-card-width': '250px',
+          maxHeight: 'var(--zone-container-height)',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(var(--zone-card-width), 1fr))',
           gap: 3,
           py: 3,
+          pr: 1,
           overflowY: 'auto',
           ...customScrollbar,
         }}
       >
-        {isLoading ? (
-          <Skeleton variant="rounded" width={240} height={250} />
-        ) : (
-          zonesData.map(({id, ...props}) => (
-            <Box key={id} sx={{width: '100%'}}>
-              <ZoneCard
-                slug={`zone?q=${id}`}
-                videosCount={
-                  id === 1
-                    ? []
-                    : [
-                        'img-4',
-                        'img-5',
-                        'img-6',
-                        'img-7',
-                        'img-8',
-                        'img-9',
-                        'img-10',
-                      ]
-                }
-                {...props}
-              />
-            </Box>
-          ))
-        )}
+        {isLoading
+          ? generatedListOfIndex.map(item => (
+              <Grid key={item} item>
+                <Skeleton
+                  variant="rounded"
+                  width="var(--zone-card-width)"
+                  height="13rem"
+                />
+              </Grid>
+            ))
+          : isSuccess
+          ? zonesData.map(({id, ...props}) => (
+              <Box key={id} sx={{width: '100%'}}>
+                <ZoneCard
+                  slug={`zone?q=${id}`}
+                  videosCount={
+                    id === 1
+                      ? []
+                      : [
+                          'img-4',
+                          'img-5',
+                          'img-6',
+                          'img-7',
+                          'img-8',
+                          'img-9',
+                          'img-10',
+                        ]
+                  }
+                  {...props}
+                />
+              </Box>
+            ))
+          : null}
       </Grid>
     </Box>
   )
