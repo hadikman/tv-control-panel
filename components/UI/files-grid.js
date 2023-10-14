@@ -5,16 +5,20 @@ import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import Skeleton from '@mui/material/Skeleton'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import {generateListOfIndex} from 'util/helper-functions'
 
 export function FilesGrid() {
-  const {data, isSuccess} = useMediaFilesData()
+  const {data, isLoading, isSuccess} = useMediaFilesData()
 
-  let files = []
+  let filesData = []
+
+  const generatedListOfIndex = generateListOfIndex(12)
 
   if (isSuccess) {
     if (data.success) {
-      files = data.data.files
+      filesData = data.data.files
     }
   }
 
@@ -34,33 +38,44 @@ export function FilesGrid() {
           p: 1,
         }}
       >
-        {isSuccess &&
-          files.map(({id, filename, duration, thumbnails}) => (
-            <FileCard
-              key={id}
-              filename={filename}
-              duration={duration}
-              thumbnails={thumbnails}
-            >
-              <Draggable id={id} data={{id, filename, duration, thumbnails}}>
-                <IconButton sx={{p: 0}}>
-                  <DragIndicatorIcon sx={{fontSize: 20}} />
-                </IconButton>
-              </Draggable>
-
-              <Typography
-                variant="caption"
-                sx={{
-                  flexGrow: 1,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                }}
+        {isLoading
+          ? generatedListOfIndex.map(item => (
+              <Grid key={item} item>
+                <Skeleton
+                  variant="rounded"
+                  width="var(--card-size)"
+                  height="var(--card-size)"
+                />
+              </Grid>
+            ))
+          : isSuccess
+          ? filesData.map(({id, filename, duration, thumbnails}) => (
+              <FileCard
+                key={id}
+                filename={filename}
+                duration={duration}
+                thumbnails={thumbnails}
               >
-                {filename}
-              </Typography>
-            </FileCard>
-          ))}
+                <Draggable id={id} data={{id, filename, duration, thumbnails}}>
+                  <IconButton sx={{p: 0}}>
+                    <DragIndicatorIcon sx={{fontSize: 20}} />
+                  </IconButton>
+                </Draggable>
+
+                <Typography
+                  variant="caption"
+                  sx={{
+                    flexGrow: 1,
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {filename}
+                </Typography>
+              </FileCard>
+            ))
+          : null}
       </Grid>
     </Box>
   )
