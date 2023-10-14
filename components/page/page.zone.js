@@ -116,6 +116,8 @@ function Zone() {
         </Grid>
       </Box>
 
+      <Divider />
+
       <Box sx={{height: '80px', mb: 1, py: 1}}>
         <Grid
           container
