@@ -29,7 +29,7 @@ function ZoneCard({name, videosCount, slug}) {
   return (
     <Card
       sx={{
-        '--card-height': '12.5rem',
+        '--card-height': '13rem',
         '--card-content-height': 'calc(var(--card-height) * 0.75)',
         '--card-name-height':
           'calc(var(--card-height) - var(--card-content-height))',
