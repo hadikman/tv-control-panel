@@ -1,4 +1,5 @@
 import * as React from 'react'
+import {Transition} from 'react-transition-group'
 import {AuthContext} from 'components/auth/auth'
 import Link from 'next/link'
 import {useTheme} from '@mui/material/styles'
@@ -21,6 +22,20 @@ import GridViewIcon from '@mui/icons-material/GridView'
 import Logout from '@mui/icons-material/Logout'
 import PermMediaIcon from '@mui/icons-material/PermMedia'
 
+const duration = 15
+const menuLinkFadeItem = {
+  entering: {opacity: 0, transform: 'translateX(-50%)'},
+  entered: {opacity: 1, transform: 'translateX(0)'},
+  exiting: {opacity: 0, display: 'none'},
+  exited: {opacity: 0, display: 'none'},
+}
+const logoutFadeItem = {
+  entering: {opacity: 0, transform: 'translateX(50%)'},
+  entered: {opacity: 1, transform: 'translateX(0)'},
+  exiting: {opacity: 0, display: 'none'},
+  exited: {opacity: 0, display: 'none'},
+}
+
 const menuListItems = [
   {
     name: 'صفحه اصلی',
@@ -41,6 +56,8 @@ const menuListItems = [
 
 function Sidebar({...props}) {
   const {onUpdateAuthState} = React.useContext(AuthContext)
+  const menuLinkRef = React.useRef()
+  const logoutRef = React.useRef()
 
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
@@ -106,7 +123,28 @@ function Sidebar({...props}) {
                 <ListItemIcon sx={{...(!open && {minWidth: 0})}}>
                   {icon}
                 </ListItemIcon>
-                {open && <ListItemText primary={name} sx={{m: 0}} />}
+                <Transition
+                  nodeRef={menuLinkRef}
+                  in={open}
+                  timeout={duration}
+                  unmountOnExit
+                >
+                  {state => (
+                    <ListItemText
+                      primary={name}
+                      sx={{
+                        m: 0,
+                        transition: theme =>
+                          `${theme.transitions.create([
+                            'opacity',
+                            'transform',
+                          ])}`,
+                        ...menuLinkFadeItem[state],
+                      }}
+                      ref={menuLinkRef}
+                    />
+                  )}
+                </Transition>
               </ListItemButton>
             </Link>
           </ListItem>
@@ -123,12 +161,29 @@ function Sidebar({...props}) {
             color: 'error.contrastText',
             borderRadius: 'var(--sm-corner)',
             mt: 1,
-
             ...(!open && {px: 0}),
           }}
           onClick={handleLogout}
         >
-          {open && <ListItemText primary="خروج" sx={{m: 0}} />}
+          <Transition
+            nodeRef={logoutRef}
+            in={open}
+            timeout={duration}
+            unmountOnExit
+          >
+            {state => (
+              <ListItemText
+                primary="خروج"
+                sx={{
+                  m: 0,
+                  transition: theme =>
+                    `${theme.transitions.create(['opacity', 'transform'])}`,
+                  ...logoutFadeItem[state],
+                }}
+                ref={logoutRef}
+              />
+            )}
+          </Transition>
           <ListItemIcon sx={{minWidth: 0, color: 'error.contrastText'}}>
             <Logout />
           </ListItemIcon>
