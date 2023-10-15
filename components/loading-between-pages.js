@@ -44,9 +44,7 @@ function LoadingBetweenPages() {
       }
     }
     function handleRouteChangeComplete() {
-      timeout = setTimeout(() => {
-        setLoading(false)
-      }, 1250)
+      setLoading(false)
     }
 
     router.events.on('routeChangeStart', handleRouteChangeStart)
