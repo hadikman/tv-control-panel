@@ -14,6 +14,25 @@ import {SERVER_STATUS_API} from 'util/api-url'
 
 const URL = process.env.NEXT_PUBLIC_DOMAIN + SERVER_STATUS_API
 
+const customScrollbar = {
+  '&::-webkit-scrollbar': {
+    width: '0.45rem',
+  },
+  '&::-webkit-scrollbar-track': {
+    bgcolor: 'lightClr.main',
+    p: 1,
+    borderRadius: '10rem',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    width: '8rem',
+    bgcolor: 'hsl(0 0% 55%)',
+    borderRadius: '10rem',
+    ':hover': {
+      bgcolor: 'hsl(0 0% 35%)',
+    },
+  },
+}
+
 export default function HomePage({...props}) {
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['server-status'],
@@ -30,7 +49,16 @@ export default function HomePage({...props}) {
 
   return (
     <Box {...props}>
-      <Box sx={{textAlign: 'center', mb: 5}}>
+      <Box
+        sx={{
+          maxHeight: '25rem',
+          textAlign: 'center',
+          mb: 5,
+          pr: 1,
+          overflowY: 'auto',
+          ...customScrollbar,
+        }}
+      >
         <Grid container sx={{justifyContent: 'space-between', gap: 1}}>
           {isLoading ? (
             <SkeletonsGroup count={3} width="100%" height={260} />
