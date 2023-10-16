@@ -35,8 +35,8 @@ export function PreviewMediaFiles() {
   const generatedListOfIndex = generateListOfIndex(3)
 
   if (isSuccess) {
-    if (data.success) {
-      filesData = data.data.files
+    if (data.data.success) {
+      filesData = data.data.data.files
     }
   }
 

@@ -1,16 +1,66 @@
-import {useQuery} from '@tanstack/react-query'
-import {fetchAndPostData} from 'util/helper-functions'
+import axiosClient from 'util/axios-http'
 import {GET_FILE_LIST_API} from 'util/api-url'
-
-const URL = process.env.NEXT_PUBLIC_DOMAIN + GET_FILE_LIST_API
+import {useQuery} from '@tanstack/react-query'
 
 function useMediaFilesData() {
-  const {data, isLoading, isSuccess} = useQuery({
+  const {
+    data,
+    dataUpdatedAt,
+    error,
+    errorUpdateCount,
+    errorUpdatedAt,
+    failureCount,
+    failureReason,
+    fetchStatus,
+    isError,
+    isFetched,
+    isFetchedAfterMount,
+    isFetching,
+    isInitialLoading,
+    isLoading,
+    isLoadingError,
+    isPaused,
+    isPlaceholderData,
+    isPreviousData,
+    isRefetchError,
+    isRefetching,
+    isStale,
+    isSuccess,
+    refetch,
+    remove,
+    status,
+  } = useQuery({
     queryKey: ['media-files-data'],
-    queryFn: () => fetchAndPostData(URL),
+    queryFn: () => axiosClient.post(GET_FILE_LIST_API),
   })
 
-  return {data, isLoading, isSuccess}
+  return {
+    data,
+    dataUpdatedAt,
+    error,
+    errorUpdateCount,
+    errorUpdatedAt,
+    failureCount,
+    failureReason,
+    fetchStatus,
+    isError,
+    isFetched,
+    isFetchedAfterMount,
+    isFetching,
+    isInitialLoading,
+    isLoading,
+    isLoadingError,
+    isPaused,
+    isPlaceholderData,
+    isPreviousData,
+    isRefetchError,
+    isRefetching,
+    isStale,
+    isSuccess,
+    refetch,
+    remove,
+    status,
+  }
 }
 
 export default useMediaFilesData

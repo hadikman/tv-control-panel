@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axiosClient from 'util/axios-http'
+import {UPLOAD_FILE_API} from 'util/api-url'
 import {useDropzone} from 'react-dropzone'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import Grid from '@mui/material/Grid'
@@ -7,39 +9,48 @@ import Stack from '@mui/material/Stack'
 import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import Typography from '@mui/material/Typography'
 import ClearIcon from '@mui/icons-material/Clear'
 import CircularProgress from '@mui/material/CircularProgress'
 import LinearProgress from '@mui/material/LinearProgress'
-import SaveIcon from '@mui/icons-material/Save'
-import {UPLOAD_FILE_API} from 'util/api-url'
-
-const UPLOAD_URL = process.env.NEXT_PUBLIC_DOMAIN + UPLOAD_FILE_API
+import FileUploadIcon from '@mui/icons-material/FileUpload'
+import DoneIcon from '@mui/icons-material/Done'
 
 function DropZone() {
   const queryClient = useQueryClient()
   const {mutate, isLoading: isSending} = useMutation({
     mutationFn: newFormData =>
-      fetch(UPLOAD_URL, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-        },
-        body: newFormData,
+      axiosClient.post(UPLOAD_FILE_API, newFormData, {
         timeout: 60000 * 10,
-      }).then(res => res.json()),
+      }),
     onSuccess: data => {
       queryClient.invalidateQueries({queryKey: ['media-files-data']})
 
-      if (data.success) {
+      if (data.status === 200) {
         setAcceptedFileArr([])
+        setIsUploaded(true)
       }
     },
   })
   const [accpetedFileArr, setAcceptedFileArr] = React.useState([])
   const [rejectedFileArr, setRejectedFileArr] = React.useState([])
+  const [isUploaded, setIsUploaded] = React.useState(false)
 
   const isAccpetedFileArr = accpetedFileArr.length > 0
   const isRejectedFileArr = rejectedFileArr.length > 0
+  const isMultipleFile = accpetedFileArr.length > 1
+
+  React.useEffect(() => {
+    let timeout
+
+    if (isUploaded) {
+      timeout = setTimeout(() => {
+        setIsUploaded(false)
+      }, 3000)
+    }
+
+    return () => clearTimeout(timeout)
+  }, [isUploaded])
 
   const handleCloseAlert = () => {
     setRejectedFileArr([])
@@ -93,7 +104,6 @@ function DropZone() {
 
     accpetedFileArr.forEach(file => formData.append('file', file))
 
-    // TODO send a POST request to the API
     mutate(formData)
   }
 
@@ -153,8 +163,10 @@ function DropZone() {
               height: '100%',
               justifyContent: 'space-between',
               alignItems: 'center',
-              bgcolor: '#fff',
+              bgcolor: isUploaded ? 'hsl(120 100% 50% / 0.25)' : '#fff',
               borderRadius: 'var(--sm-corner)',
+              transition: theme =>
+                `${theme.transitions.create(['background-color'])}`,
             }}
           >
             {accpetedFileArr.map(({name}) => (
@@ -212,7 +224,11 @@ function DropZone() {
                   variant="contained"
                   fullWidth
                   endIcon={
-                    isSending ? <CircularProgress size={18} /> : <SaveIcon />
+                    isSending ? (
+                      <CircularProgress size={18} />
+                    ) : (
+                      <FileUploadIcon />
+                    )
                   }
                   disabled={isSending ? true : false}
                   color={isRejectedFileArr ? 'error' : 'success'}
@@ -220,9 +236,22 @@ function DropZone() {
                 >
                   {isRejectedFileArr
                     ? 'فایل‌های غیر مجاز را حذف نمایید.'
-                    : 'فایل‌ها مجاز می باشند. اکنون آپلود نمایید'}
+                    : `${
+                        isMultipleFile
+                          ? 'فایل‌ها مجاز می‌باشند.'
+                          : 'فایل مجاز می‌باشد.'
+                      } اکنون آپلود نمایید`}
                 </Button>
               </Grid>
+            )}
+
+            {isUploaded && (
+              <Typography
+                variant="body1"
+                sx={{textAlign: 'center', py: 1, px: 2, mx: 'auto'}}
+              >
+                {'با موفقیت بارگذاری شد'} <DoneIcon color="success" />
+              </Typography>
             )}
           </Grid>
 

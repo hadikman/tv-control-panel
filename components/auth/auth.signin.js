@@ -1,5 +1,7 @@
 import * as React from 'react'
 import {AuthContext} from './auth'
+import axiosClient from 'util/axios-http'
+import {LOGIN_API} from 'util/api-url'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -8,27 +10,13 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Snackbar from '@mui/material/Snackbar'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
-import {LOGIN_API} from 'util/api-url'
-
-const URL = process.env.NEXT_PUBLIC_DOMAIN + LOGIN_API
 
 async function fetchLoginData(userData) {
-  let response = {}
+  const response = await axiosClient.post(LOGIN_API, userData)
 
-  response = await fetch(URL, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  })
-
-  if (!response.ok) {
+  if (response.status !== 200) {
     console.error('Login failed, try again.')
   }
-
-  response = await response.json()
 
   return response
 }
@@ -49,7 +37,8 @@ function SignIn() {
     }
 
     const fetchedLoginData = await fetchLoginData(userData)
-    const {success, data} = fetchedLoginData
+    const {data: loginData} = fetchedLoginData
+    const {success, data} = loginData
 
     if (success) {
       localStorage.setItem('token', JSON.stringify(data.token))

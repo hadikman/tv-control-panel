@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axiosClient from 'util/axios-http'
+import {GET_STANDS_API, ADD_STAND_API} from 'util/api-url'
 import {useRouter} from 'next/router'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {FilesAndTimeline, SendButton} from 'components/UI'
@@ -8,11 +10,6 @@ import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Skeleton from '@mui/material/Skeleton'
-import {fetchAndPostData} from 'util/helper-functions'
-import {GET_STANDS_API, ADD_STAND_API} from 'util/api-url'
-
-const GET_STANDS_URL = process.env.NEXT_PUBLIC_DOMAIN + GET_STANDS_API
-const ADD_STAND_URL = process.env.NEXT_PUBLIC_DOMAIN + ADD_STAND_API
 
 function Zone() {
   const router = useRouter()
@@ -20,21 +17,14 @@ function Zone() {
   const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['stands-data', q],
-    queryFn: () =>
-      fetchAndPostData(GET_STANDS_URL, {
-        body: JSON.stringify({zoneID: +q}),
-      }),
+    queryFn: () => axiosClient.post(GET_STANDS_API, {zoneID: +q}),
   })
   const {
     mutate,
     isLoading: isSending,
     isSuccess: isSent,
   } = useMutation({
-    mutationFn: newStand => {
-      return fetchAndPostData(ADD_STAND_URL, {
-        body: JSON.stringify(newStand),
-      })
-    },
+    mutationFn: newStand => axiosClient.post(ADD_STAND_API, newStand),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['stands-data', q]})
     },
@@ -52,8 +42,8 @@ function Zone() {
   const isIpNumError = ipNumErrorMessage !== ''
 
   if (isSuccess) {
-    if (data.success) {
-      standsData = data.data
+    if (data.data.success) {
+      standsData = data.data.data
       totalStands = standsData.length
       isEmptyStand = standsData.length === 0
     }

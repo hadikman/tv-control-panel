@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axiosClient from 'util/axios-http'
+import {SERVER_STATUS_API} from 'util/api-url'
 import {useQuery} from '@tanstack/react-query'
 import {GaugeMeter} from 'components/UI'
 import Grid from '@mui/material/Grid'
@@ -9,10 +11,7 @@ import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Skeleton from '@mui/material/Skeleton'
-import {fetchAndPostData, generateListOfIndex} from 'util/helper-functions'
-import {SERVER_STATUS_API} from 'util/api-url'
-
-const URL = process.env.NEXT_PUBLIC_DOMAIN + SERVER_STATUS_API
+import {generateListOfIndex} from 'util/helper-functions'
 
 const customScrollbar = {
   '&::-webkit-scrollbar': {
@@ -36,15 +35,15 @@ const customScrollbar = {
 export default function HomePage({...props}) {
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['server-status'],
-    queryFn: () => fetchAndPostData(URL),
+    queryFn: () => axiosClient.post(SERVER_STATUS_API),
   })
 
   let serverStatusData = []
   let overallStatusData = []
 
   if (isSuccess) {
-    serverStatusData = data.data.serverStatus
-    overallStatusData = data.data.overallStatus
+    serverStatusData = data.data.data.serverStatus
+    overallStatusData = data.data.data.overallStatus
   }
 
   return (

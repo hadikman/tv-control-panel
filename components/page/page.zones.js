@@ -1,4 +1,6 @@
 import * as React from 'react'
+import axiosClient from 'util/axios-http'
+import {GET_ZONES_API, ADD_ZONE_API} from 'util/api-url'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {ZoneCard, SendButton} from 'components/UI'
 import Grid from '@mui/material/Grid'
@@ -7,11 +9,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
-import {fetchAndPostData, generateListOfIndex} from 'util/helper-functions'
-import {GET_ZONES_API, ADD_ZONE_API} from 'util/api-url'
-
-const GET_ZONES_URL = process.env.NEXT_PUBLIC_DOMAIN + GET_ZONES_API
-const ADD_ZONE_URL = process.env.NEXT_PUBLIC_DOMAIN + ADD_ZONE_API
+import {generateListOfIndex} from 'util/helper-functions'
 
 const customScrollbar = {
   '&::-webkit-scrollbar': {
@@ -36,18 +34,14 @@ function ZonesPage({...props}) {
   const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['zones-data'],
-    queryFn: () => fetchAndPostData(GET_ZONES_URL),
+    queryFn: () => axiosClient.post(GET_ZONES_API),
   })
   const {
     mutate,
     isLoading: isSending,
     isSuccess: isSent,
   } = useMutation({
-    mutationFn: newZone => {
-      return fetchAndPostData(ADD_ZONE_URL, {
-        body: JSON.stringify(newZone),
-      })
-    },
+    mutationFn: newZone => axiosClient.post(ADD_ZONE_API, newZone),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['zones-data']})
     },
@@ -62,7 +56,7 @@ function ZonesPage({...props}) {
   const generatedListOfIndex = generateListOfIndex(4)
 
   if (isSuccess) {
-    zonesData = data.data
+    zonesData = data.data.data
   }
 
   function handleInput(e) {

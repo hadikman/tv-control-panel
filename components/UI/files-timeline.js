@@ -1,5 +1,7 @@
 import * as React from 'react'
 import {useRouter} from 'next/router'
+import axiosClient from 'util/axios-http'
+import {GET_ZONE_TIMElINE_API, SAVE_ZONE_TIMELINE_API} from 'util/api-url'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {DndContext} from '@dnd-kit/core'
 import {FilesGrid, Timeline} from 'components/UI'
@@ -8,13 +10,6 @@ import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Chip from '@mui/material/Chip'
 import {generateKeyCopy} from 'util/helper-functions'
-import {fetchAndPostData} from 'util/helper-functions'
-import {GET_ZONE_TIMElINE_API, SAVE_ZONE_TIMELINE_API} from 'util/api-url'
-
-const GET_ZONE_TIMELINE_URL =
-  process.env.NEXT_PUBLIC_DOMAIN + GET_ZONE_TIMElINE_API
-const SAVE_ZONE_TIMELINE_URL =
-  process.env.NEXT_PUBLIC_DOMAIN + SAVE_ZONE_TIMELINE_API
 
 export function FilesAndTimeline({sx, ...props}) {
   const router = useRouter()
@@ -22,10 +17,7 @@ export function FilesAndTimeline({sx, ...props}) {
   const queryClient = useQueryClient()
   const {data, isSuccess} = useQuery({
     queryKey: ['timeline-data', q],
-    queryFn: () =>
-      fetchAndPostData(GET_ZONE_TIMELINE_URL, {
-        body: JSON.stringify({zoneID: +q}),
-      }),
+    queryFn: () => axiosClient.post(GET_ZONE_TIMElINE_API, {zoneID: +q}),
     refetchOnWindowFocus: false,
   })
   const {
@@ -33,11 +25,8 @@ export function FilesAndTimeline({sx, ...props}) {
     isLoading: isSending,
     isSuccess: isSent,
   } = useMutation({
-    mutationFn: timelineNewData => {
-      return fetchAndPostData(SAVE_ZONE_TIMELINE_URL, {
-        body: JSON.stringify(timelineNewData),
-      })
-    },
+    mutationFn: timelineNewData =>
+      axiosClient.post(SAVE_ZONE_TIMELINE_API, timelineNewData),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['timeline-data', q]})
     },
@@ -47,14 +36,14 @@ export function FilesAndTimeline({sx, ...props}) {
   let timelineData = React.useMemo(() => [], [])
 
   if (isSuccess) {
-    if (data.success) {
-      timelineData = data.data
+    if (data.data.success) {
+      timelineData = data.data.data
     }
   }
 
   React.useEffect(() => {
     if (isSuccess) {
-      if (data.success) {
+      if (data.data.success) {
         setAddedFiles(prevState => [
           ...timelineData.map(item => ({
             ...item,

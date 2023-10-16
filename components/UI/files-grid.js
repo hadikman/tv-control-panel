@@ -17,8 +17,8 @@ export function FilesGrid() {
   const generatedListOfIndex = generateListOfIndex(12)
 
   if (isSuccess) {
-    if (data.success) {
-      filesData = data.data.files
+    if (data.data.success) {
+      filesData = data.data.data.files
     }
   }
 
