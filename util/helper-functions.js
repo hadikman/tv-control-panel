@@ -38,20 +38,6 @@ export function truncateWords(string = '', length = 15) {
   return string
 }
 
-export function fetchAndPostData(url, options = {}) {
-  // console.log(options)
-  const res = fetch(url, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    ...options,
-  }).then(res => res.json())
-
-  return res
-}
-
 export function generateListOfIndex(count = 0) {
   return Array.from({length: count}, (_, i) => i + 1)
 }
