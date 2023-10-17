@@ -21,7 +21,9 @@ import LinearProgress from '@mui/material/LinearProgress'
 import FileUploadIcon from '@mui/icons-material/FileUpload'
 import DoneIcon from '@mui/icons-material/Done'
 import {bytesToMemoryUnit} from 'util/helper-functions'
+import {customVerticalScrollbar} from 'util/scrollbar-group'
 
+const UPLOAD_TIMEOUT = 60000 * 10
 const MAX_FILES = 10
 const MAX_SIZE = 1024 * 1024 * 1024 * 2
 
@@ -62,7 +64,7 @@ function DropZone() {
   const {mutate, isLoading: isSending} = useMutation({
     mutationFn: newFormData =>
       axiosClient.post(UPLOAD_FILE_API, newFormData, {
-        timeout: 60000 * 10,
+        timeout: UPLOAD_TIMEOUT,
       }),
     onSuccess: data => {
       queryClient.invalidateQueries({queryKey: ['media-files-data']})
@@ -160,9 +162,15 @@ function DropZone() {
       component="form"
       onSubmit={handleOnSubmitOnUploadedFiles}
       onReset={handleOnResetOnUploadedFiles}
+      sx={{
+        maxHeight: '10.5rem',
+        overflowY: 'auto',
+        pr: 1,
+        ...customVerticalScrollbar,
+      }}
     >
       <Grid container spacing={1}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={5}>
           <Box
             sx={{
               height: '100%',
@@ -170,13 +178,12 @@ function DropZone() {
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '0.75rem',
-              textAlign: 'center',
               backgroundColor: '#fff',
               color: 'greyClr.main',
               border: '2px dashed',
               borderColor: 'greyClr.main',
               borderRadius: 'var(--sm-corner)',
-              padding: '20px',
+              padding: 2,
               cursor: 'pointer',
               transition: 'border .24s ease-in-out',
               ...(isFocused ? {borderColor: 'success.light'} : {}),
@@ -208,7 +215,7 @@ function DropZone() {
           </Box>
         </Grid>
 
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={7}>
           <Grid
             container
             sx={{
