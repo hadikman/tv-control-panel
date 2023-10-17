@@ -10,6 +10,7 @@ import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Skeleton from '@mui/material/Skeleton'
+import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 function Zone() {
   const router = useRouter()
@@ -96,102 +97,136 @@ function Zone() {
   return (
     <Box>
       <Box sx={{mb: 2}}>
-        <Grid container>
-          <Grid item xs={6}>
-            کل استند های متصل: {totalStands}
-          </Grid>
-          <Grid item xs={6}>
-            کل انلاین ها: 0
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Divider />
-
-      <Box sx={{height: '80px', mb: 1, py: 1}}>
-        <Grid
-          container
-          component="form"
-          sx={{flexDirection: 'row', alignItems: 'baseline', gap: 4}}
-          onSubmit={handleOnSubmitForm}
-        >
-          <TextField
-            id="stand-name"
-            variant="standard"
-            label="استند جدید"
-            placeholder="یک نام وارد نمایید"
-            helperText={standNameErrorMessage}
-            error={isStandNameError}
-            value={standName}
-            onChange={handleOnStandName}
-            inputProps={{onFocus: handleOnFocusStandNameInput}}
-          />
-          <TextField
-            id="stand-ip"
-            variant="standard"
-            label="آی پی جدید"
-            placeholder="شماره آی پی"
-            helperText={ipNumErrorMessage}
-            error={isIpNumError}
-            value={ipNumString}
-            onChange={handleOnIpNumString}
-            inputProps={{onFocus: handleOnFocusIpNumInput}}
-          />
-
-          <SendButton
-            lableText="افزودن"
-            isSending={isSending}
-            isSent={isSent}
-          />
-        </Grid>
-      </Box>
-
-      <Divider />
-
-      <Box sx={{my: 2}}>
-        <Grid
-          container
-          spacing={1}
-          sx={{textAlign: 'center', alignItems: 'center'}}
-        >
-          {isLoading ? (
-            [1, 2].map(item => (
-              <Grid key={item} item xs="auto">
-                <Skeleton variant="rounded" width={144} height={64} />
+        <Grid container spacing={1}>
+          <Grid item xs={12} md={4}>
+            <Grid
+              container
+              sx={{
+                height: '80px',
+                alignItems: 'center',
+                textAlign: 'center',
+                border: 'thin solid',
+                borderColor: 'hsl(0 0% 80%)',
+                borderRadius: 'var(--sm-corner)',
+                py: 0.5,
+                px: 1,
+              }}
+            >
+              <Grid item xs>
+                کل استند های متصل: {totalStands}
               </Grid>
-            ))
-          ) : isEmptyStand ? (
-            <Grid item xs="auto">
-              <Typography variant="body2">
-                لطفاً حداقل یک استند اضافه نمایید.
-              </Typography>
+              <Grid item xs>
+                کل انلاین ها: 0
+              </Grid>
             </Grid>
-          ) : (
-            standsData.map(({id, name, ip}) => (
-              <Grid key={id} item xs={2}>
-                <Box
-                  sx={{
-                    bgcolor: 'hsl(0 0% 85%)',
-                    borderRadius: 'var(--sm-corner)',
-                    p: 1,
-                    ':hover': {
-                      bgcolor: 'greyClr.main',
-                    },
-                  }}
-                >
-                  <Typography variant="body1">{name}</Typography>
-                  <Typography variant="caption">آی پی : {ip}</Typography>
-                </Box>
-              </Grid>
-            ))
-          )}
+          </Grid>
+
+          <Grid item xs={12} md={8}>
+            <Grid
+              container
+              component="form"
+              sx={{
+                height: '80px',
+                flexDirection: 'row',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+                gap: 4,
+                border: 'thin solid',
+                borderColor: 'hsl(0 0% 80%)',
+                borderRadius: 'var(--sm-corner)',
+                py: 0.5,
+                px: 1,
+              }}
+              onSubmit={handleOnSubmitForm}
+            >
+              <TextField
+                id="stand-name"
+                variant="standard"
+                label="استند جدید"
+                placeholder="یک نام وارد نمایید"
+                helperText={standNameErrorMessage}
+                error={isStandNameError}
+                value={standName}
+                onChange={handleOnStandName}
+                inputProps={{onFocus: handleOnFocusStandNameInput}}
+              />
+              <TextField
+                id="stand-ip"
+                variant="standard"
+                label="آی پی جدید"
+                placeholder="شماره آی پی"
+                helperText={ipNumErrorMessage}
+                error={isIpNumError}
+                value={ipNumString}
+                onChange={handleOnIpNumString}
+                inputProps={{onFocus: handleOnFocusIpNumInput}}
+              />
+
+              <SendButton
+                lableText="افزودن"
+                isSending={isSending}
+                isSent={isSent}
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Box>
 
       <Divider />
 
-      <Box sx={{mt: 2}}>
-        <FilesAndTimeline />
+      <Box
+        sx={{
+          maxHeight: '30rem',
+          overflowY: 'auto',
+          pr: 1,
+          ...customVerticalScrollbar,
+        }}
+      >
+        <Box sx={{my: 2}}>
+          <Grid
+            container
+            spacing={1}
+            sx={{textAlign: 'center', alignItems: 'center'}}
+          >
+            {isLoading ? (
+              [1, 2].map(item => (
+                <Grid key={item} item xs="auto">
+                  <Skeleton variant="rounded" width={144} height={64} />
+                </Grid>
+              ))
+            ) : isEmptyStand ? (
+              <Grid item xs="auto">
+                <Typography variant="body2">
+                  لطفاً حداقل یک استند اضافه نمایید.
+                </Typography>
+              </Grid>
+            ) : (
+              standsData.map(({id, name, ip}) => (
+                <Grid key={id} item xs={2}>
+                  <Box
+                    sx={{
+                      bgcolor: 'hsl(0 0% 85%)',
+                      borderRadius: 'var(--sm-corner)',
+                      p: 1,
+                      ':hover': {
+                        bgcolor: 'greyClr.main',
+                      },
+                    }}
+                  >
+                    <Typography variant="body1">{name}</Typography>
+                    <Typography variant="caption">آی پی : {ip}</Typography>
+                  </Box>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        </Box>
+
+        <Divider />
+
+        <Box sx={{mt: 2}}>
+          <FilesAndTimeline />
+        </Box>
       </Box>
     </Box>
   )
