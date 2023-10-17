@@ -8,10 +8,13 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemIcon from '@mui/material/ListItemIcon'
 import Button from '@mui/material/Button'
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
+import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import VerifiedIcon from '@mui/icons-material/Verified'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import ClearIcon from '@mui/icons-material/Clear'
 import CircularProgress from '@mui/material/CircularProgress'
 import LinearProgress from '@mui/material/LinearProgress'
@@ -210,65 +213,66 @@ function DropZone() {
             container
             sx={{
               height: '100%',
-              justifyContent: 'space-between',
-              alignItems: 'center',
               bgcolor: isUploaded ? 'hsl(120 100% 50% / 0.25)' : '#fff',
               borderRadius: 'var(--sm-corner)',
               transition: theme =>
                 `${theme.transitions.create(['background-color'])}`,
             }}
           >
-            {accpetedFileArr.map(({name}) => (
-              <Grid key={name} item xs={12}>
-                <Alert
-                  severity="success"
-                  sx={{alignItems: 'center', fontSize: '0.75rem'}}
-                  action={
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="error"
-                      sx={{p: 0}}
+            <List dense disablePadding sx={{width: '100%'}}>
+              {accpetedFileArr.map(({name}) => (
+                <ListItem
+                  key={name}
+                  divider
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
                       onClick={() => handleRemoveFile(name)}
                     >
-                      <ClearIcon />
-                    </Button>
+                      <ClearIcon color="error" />
+                    </IconButton>
                   }
+                  sx={{py: 1}}
                 >
-                  <AlertTitle sx={{fontSize: '0.625rem', fontWeight: 700}}>
-                    {name}
-                  </AlertTitle>
-                </Alert>
-              </Grid>
-            ))}
+                  <ListItemIcon>
+                    <VerifiedIcon color="success" />
+                  </ListItemIcon>
+                  <ListItemText>{name}</ListItemText>
+                </ListItem>
+              ))}
 
-            {rejectedFileArr.map(({file, errors}) => (
-              <Alert
-                key={file.name}
-                severity="error"
-                sx={{width: '100%'}}
-                action={
-                  <Button
-                    variant="contained"
-                    color="error"
-                    sx={{height: '100%'}}
-                    onClick={handleCloseAlert}
+              {rejectedFileArr.map(({file, errors}) => (
+                <ListItem
+                  key={file.name}
+                  divider
+                  secondaryAction={
+                    <IconButton edge="end" onClick={handleCloseAlert}>
+                      <ClearIcon color="error" />
+                    </IconButton>
+                  }
+                  sx={{color: 'error.dark', py: 1}}
+                >
+                  <ListItemIcon>
+                    <ErrorOutlineIcon color="error" />
+                  </ListItemIcon>
+                  <ListItemText
+                    secondary={errors.map(({code, message}) => (
+                      <Box component="span" key={code} sx={{mr: 0.5}}>
+                        {aliasNames[code] || message}
+                      </Box>
+                    ))}
+                    secondaryTypographyProps={{
+                      sx: {fontSize: '0.75rem', mr: 0.5},
+                    }}
                   >
-                    <ClearIcon />
-                  </Button>
-                }
-              >
-                <AlertTitle sx={{fontWeight: 700}}>{file.name}</AlertTitle>
-                {errors.map(({code, message}) => (
-                  <Box component="span" key={code} sx={{mr: 0.5}}>
-                    {aliasNames[code] || message}
-                  </Box>
-                ))}
-              </Alert>
-            ))}
+                    {file.name}
+                  </ListItemText>
+                </ListItem>
+              ))}
+            </List>
 
             {(isAccpetedFileArr || isRejectedFileArr) && (
-              <Grid item xs={12} sx={{p: 1}}>
+              <Grid item xs={12} sx={{alignSelf: 'flex-end', p: 1}}>
                 <Button
                   variant="contained"
                   fullWidth
