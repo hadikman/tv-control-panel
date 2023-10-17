@@ -28,6 +28,18 @@ export function milisecondsToTime(milisecond) {
   return `${h}:${m}:${s}`
 }
 
+export function bytesToMemoryUnit(bytes) {
+  const units = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت', 'ترابایت']
+  let l = 0
+  let n = parseInt(bytes, 10) || 0
+
+  while (n >= 1024 && ++l) {
+    n = n / 1024
+  }
+
+  return n.toFixed(n < 10 && l > 0 ? 1 : 0) + ' ' + units[l]
+}
+
 export function truncateWords(string = '', length = 15) {
   const stringLength = string.length
 
