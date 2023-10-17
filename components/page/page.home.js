@@ -12,25 +12,7 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Skeleton from '@mui/material/Skeleton'
 import {generateListOfIndex} from 'util/helper-functions'
-
-const customScrollbar = {
-  '&::-webkit-scrollbar': {
-    width: '0.45rem',
-  },
-  '&::-webkit-scrollbar-track': {
-    bgcolor: 'lightClr.main',
-    p: 1,
-    borderRadius: '10rem',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    width: '8rem',
-    bgcolor: 'hsl(0 0% 55%)',
-    borderRadius: '10rem',
-    ':hover': {
-      bgcolor: 'hsl(0 0% 35%)',
-    },
-  },
-}
+import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 export default function HomePage({...props}) {
   const {data, isLoading, isSuccess} = useQuery({
@@ -55,7 +37,7 @@ export default function HomePage({...props}) {
           mb: 5,
           pr: 1,
           overflowY: 'auto',
-          ...customScrollbar,
+          ...customVerticalScrollbar,
         }}
       >
         <Grid container sx={{justifyContent: 'space-between', gap: 1}}>

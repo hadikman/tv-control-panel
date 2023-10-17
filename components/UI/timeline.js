@@ -33,25 +33,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import AddAlarmIcon from '@mui/icons-material/AddAlarm'
 import DoneIcon from '@mui/icons-material/Done'
 import {milisecondsToTime, truncateWords} from 'util/helper-functions'
-
-const customScrollbar = {
-  '&::-webkit-scrollbar': {
-    height: '0.45rem',
-  },
-  '&::-webkit-scrollbar-track': {
-    bgcolor: 'darkClr.main',
-    p: 1,
-    borderRadius: '10rem',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    width: '8rem',
-    bgcolor: 'hsl(0 0% 45%)',
-    borderRadius: '10rem',
-    ':hover': {
-      bgcolor: 'hsl(0 0% 65%)',
-    },
-  },
-}
+import {customHorizontalScrollbar} from 'util/scrollbar-group'
 
 export function Timeline({
   id,
@@ -198,7 +180,7 @@ export function Timeline({
                 gridAutoColumns: 'var(--cell-width)',
                 py: 1,
                 overflowX: 'auto',
-                ...customScrollbar,
+                ...customHorizontalScrollbar,
               }}
             >
               {durationTimeLength.map(({cellLength, occupiedCell}, idx) => (
@@ -283,7 +265,7 @@ export function Timeline({
                     p: 1,
                     px: 3,
                     overflowX: 'auto',
-                    ...customScrollbar,
+                    ...customHorizontalScrollbar,
                   }}
                 >
                   {timelineFiles.map(({id, filename, duration, thumbnail}) => (

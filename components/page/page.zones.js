@@ -10,25 +10,7 @@ import TextField from '@mui/material/TextField'
 import Divider from '@mui/material/Divider'
 import Skeleton from '@mui/material/Skeleton'
 import {generateListOfIndex} from 'util/helper-functions'
-
-const customScrollbar = {
-  '&::-webkit-scrollbar': {
-    width: '0.45rem',
-  },
-  '&::-webkit-scrollbar-track': {
-    bgcolor: 'lightClr.main',
-    p: 1,
-    borderRadius: '10rem',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    width: '8rem',
-    bgcolor: 'hsl(0 0% 55%)',
-    borderRadius: '10rem',
-    ':hover': {
-      bgcolor: 'hsl(0 0% 35%)',
-    },
-  },
-}
+import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 function ZonesPage({...props}) {
   const queryClient = useQueryClient()
@@ -125,7 +107,7 @@ function ZonesPage({...props}) {
           py: 3,
           pr: 1,
           overflowY: 'auto',
-          ...customScrollbar,
+          ...customVerticalScrollbar,
         }}
       >
         {isLoading
