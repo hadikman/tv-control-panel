@@ -10,12 +10,27 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Snackbar from '@mui/material/Snackbar'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import {keyframes} from '@mui/material'
+
+const DISPLAY_LOADING_PANEL = 1750
+
+const bblFadInOut = keyframes({
+  '0%, 80%, 100%': {boxShadow: '0 2.5em 0 -1.3em'},
+  '40%': {boxShadow: '0 2.5em 0 0 '},
+})
 
 async function fetchLoginData(userData) {
-  const response = await axiosClient.post(LOGIN_API, userData)
+  let response
 
-  if (response.status !== 200) {
-    console.error('Login failed, try again.')
+  try {
+    response = await axiosClient.post(LOGIN_API, userData)
+    response = response.data
+  } catch (error) {
+    response = error
+
+    if (response.status !== 200) {
+      console.error(`Error code: ${error.response.status}`)
+    }
   }
 
   return response
@@ -23,28 +38,44 @@ async function fetchLoginData(userData) {
 
 function SignIn() {
   const {onUpdateAuthState} = React.useContext(AuthContext)
-  const [isError, setIsError] = React.useState(false)
+  const [isLoadingPanel, setIsLoadingPanel] = React.useState(false)
+  const [errorMessage, setErrorMessage] = React.useState('')
+
+  const isError = errorMessage !== ''
 
   const handleOnSubmitForm = async event => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
 
-    setIsError(false)
+    setIsLoadingPanel(true)
+
+    if (isError) {
+      setErrorMessage('')
+    }
 
     const userData = {
       username: formData.get('username'),
       password: formData.get('password'),
     }
 
-    const fetchedLoginData = await fetchLoginData(userData)
-    const {data: loginData} = fetchedLoginData
-    const {success, data} = loginData
+    const data = await fetchLoginData(userData)
 
-    if (success) {
+    if (data.success) {
+      let timeout
+
       localStorage.setItem('token', JSON.stringify(data.token))
-      onUpdateAuthState(true)
-    } else {
-      setIsError(true)
+
+      timeout = setTimeout(() => {
+        onUpdateAuthState(true)
+        setIsLoadingPanel(false)
+        clearTimeout(timeout)
+      }, DISPLAY_LOADING_PANEL)
+    } else if (data.response.status === 403) {
+      setErrorMessage('نام کاربری/رمز عبور اشتباه است')
+      setIsLoadingPanel(false)
+    } else if (data.response.status >= 500) {
+      setErrorMessage('عدم دسترسی به سرور')
+      setIsLoadingPanel(false)
     }
   }
 
@@ -111,10 +142,66 @@ function SignIn() {
                 p: 1,
               }}
             >
-              خطایی رخ داده است، دوباره تلاش نمایید
+              {`${errorMessage}، .دوباره تلاش نمایید`}
             </Typography>
           </Snackbar>
         )}
+
+        {isLoadingPanel ? (
+          <Box
+            sx={{
+              position: 'fixed',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(5px)',
+              zIndex: 10000,
+              '.loader-panel, .loader-panel:before, .loader-panel:after': {
+                width: '2.5em',
+                height: '2.5em',
+                borderRadius: '50%',
+                animationFillMode: 'both',
+                animation: `${bblFadInOut} 1.8s infinite ease-in-out`,
+              },
+              '.loader-panel': {
+                fontSize: '4px',
+                textIndent: '-9999em',
+                color: 'darkClr.main',
+                transform: 'translateZ(0)',
+                animationDelay: '-0.16s',
+                position: 'relative',
+              },
+              '.loader-panel:before, .loader-panel:after': {
+                content: '""',
+                position: 'absolute',
+                top: '0',
+              },
+              '.loader-panel:before': {
+                left: '-3.5em',
+                animationDelay: '-0.32s',
+              },
+              '.loader-panel:after': {
+                left: '3.5em',
+              },
+            }}
+          >
+            <Box
+              sx={{
+                width: '60%',
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 3,
+                mx: 'auto',
+              }}
+            >
+              <Typography variant="h6" sx={{color: 'darkClr.main'}}>
+                در حال ورود به حساب کاربری
+              </Typography>
+              <Box className="loader-panel"></Box>
+            </Box>
+          </Box>
+        ) : null}
       </Box>
     </Container>
   )
