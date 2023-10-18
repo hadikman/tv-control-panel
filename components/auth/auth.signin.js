@@ -63,7 +63,7 @@ function SignIn() {
     if (data.success) {
       let timeout
 
-      localStorage.setItem('token', JSON.stringify(data.token))
+      localStorage.setItem('token', JSON.stringify(data.data.token))
 
       timeout = setTimeout(() => {
         onUpdateAuthState(true)
