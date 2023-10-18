@@ -59,17 +59,18 @@ function AuthenticationPage({...props}) {
   }
 
   return (
-    <Box className={VAZIRMATN_FONT.className}>
+    <Box className={VAZIRMATN_FONT.className} sx={{pt: 8}}>
       <Stack
         sx={{
           width: '35%',
           minWidth: '18rem',
           alignItems: 'center',
-          border: '4px dotted',
-          borderColor: 'primary.main',
+          bgcolor: 'lightClr.main',
+          outline: '4px solid',
+          outlineColor: 'hsl(13, 80%, 60%)',
+          outlineOffset: '2px',
           borderRadius: 'var(--md-corner)',
           pt: 2,
-          mt: '3rem',
           ml: 'auto',
           mr: 'auto',
         }}

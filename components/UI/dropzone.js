@@ -60,6 +60,7 @@ function filenameValidator(file) {
 }
 
 function DropZone() {
+  const tempurl = 'https://httpbin.org/post'
   const queryClient = useQueryClient()
   const {mutate, isLoading: isSending} = useMutation({
     mutationFn: newFormData =>
