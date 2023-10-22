@@ -2,34 +2,39 @@ import * as React from 'react'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import AddIcon from '@mui/icons-material/Add'
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh'
 import DoneIcon from '@mui/icons-material/Done'
 import {preventClicking} from 'util/helper-functions'
 
 function SendButton({
   lableText,
   isSending,
-  isSent,
+  isError,
+  isSuccess,
+  sendLabelText = 'در حال ارسال',
+  errorLabelText = 'ارسال نشد',
+  successLabelText = 'ارسال گردید',
   iconCmp,
   sx,
   onClick,
   ...props
 }) {
-  const [isAddedZoneName, setIsAddedZoneName] = React.useState(false)
-  const SUCCESSFUL_DISPLAY_TIME_DURATION = 2000
+  const [isSuccessState, setIsSuccessState] = React.useState(false)
+  const DISPLAY_TIME_DURATION = 2000
 
   React.useEffect(() => {
     let timeout
 
-    if (isSent) {
-      setIsAddedZoneName(true)
+    if (isSuccess) {
+      setIsSuccessState(true)
 
       timeout = setTimeout(() => {
-        setIsAddedZoneName(false)
-      }, SUCCESSFUL_DISPLAY_TIME_DURATION)
+        setIsSuccessState(false)
+      }, DISPLAY_TIME_DURATION)
     }
 
     return () => clearTimeout(timeout)
-  }, [isSent])
+  }, [isSuccess])
 
   return (
     <Button
@@ -38,19 +43,27 @@ function SendButton({
       endIcon={
         isSending ? (
           <CircularProgress size={18} />
-        ) : isAddedZoneName ? (
+        ) : isError ? (
+          <PriorityHighIcon />
+        ) : isSuccessState ? (
           <DoneIcon />
         ) : (
           iconCmp || <AddIcon />
         )
       }
       disabled={isSending ? true : false}
-      color={isAddedZoneName ? 'success' : 'secondary'}
+      color={isError ? 'error' : isSuccessState ? 'success' : 'secondary'}
       sx={{...sx}}
-      onClick={isAddedZoneName ? preventClicking : onClick}
+      onClick={isError || isSuccessState ? preventClicking : onClick}
       {...props}
     >
-      {isAddedZoneName ? 'ثبت شد' : lableText}
+      {isSending
+        ? sendLabelText
+        : isError
+        ? errorLabelText
+        : isSuccessState
+        ? successLabelText
+        : lableText}
     </Button>
   )
 }
