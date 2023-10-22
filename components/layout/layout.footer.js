@@ -27,7 +27,7 @@ function Footer({...props}) {
         {...props}
       >
         <Typography variant="caption">
-          داشبورد کنترل نمایش تلویزیون ها نسخه 1.0 - {persianDate}
+          داشبورد کنترل نمایش استندها نسخه 1.0 - {persianDate}
         </Typography>
       </Grid>
     </Box>
