@@ -1,6 +1,9 @@
 import * as React from 'react'
+import axiosClient from 'util/axios-http'
+import {DELETE_FILE_API} from 'util/api-url'
 import useMediaFilesData from 'hook/useMediaFilesData'
-import {FileCard} from 'components/UI'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {FileCard, Notification} from 'components/UI'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
@@ -10,9 +13,30 @@ import {generateListOfIndex} from 'util/helper-functions'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 export function PreviewMediaFiles() {
+  const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useMediaFilesData()
+  const {
+    data: deleteFileResponse,
+    mutate: mutateToDeleteFile,
+    isSuccess: isDeletedSuccessfully,
+  } = useMutation({
+    mutationFn: file => axiosClient.post(DELETE_FILE_API, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['media-files-data']})
+    },
+  })
+  const [status, setStatus] = React.useState('')
 
   let filesData = []
+
+  const isDeletedFile = status === 'deleted'
+  const isUsedFile = status === 'used'
+
+  const statusMsg = isDeletedFile
+    ? 'فایل با موفقیت حذف گردید'
+    : isUsedFile
+    ? 'فایل در استند استفاده شده است، حذف فایل غیرمجاز است'
+    : ''
 
   const generatedListOfIndex = generateListOfIndex(3)
 
@@ -22,10 +46,22 @@ export function PreviewMediaFiles() {
     }
   }
 
-  function handleDeleteMedia(id) {
-    // TODO send a POST request to the API
+  React.useEffect(() => {
+    if (isDeletedSuccessfully) {
+      if (deleteFileResponse.data.success) {
+        setStatus('deleted')
+      } else {
+        setStatus('used')
+      }
+    }
+  }, [isDeletedSuccessfully, deleteFileResponse])
 
-    console.log({id})
+  function handleDeleteFile(id, filename) {
+    const isConfirmed = confirm(`آیا فایل "${filename}" حذف شود؟`)
+
+    if (isConfirmed) {
+      mutateToDeleteFile({id, filename})
+    }
   }
 
   return (
@@ -75,13 +111,22 @@ export function PreviewMediaFiles() {
               <IconButton
                 size="small"
                 color="error"
-                onClick={() => handleDeleteMedia(id)}
+                onClick={() => handleDeleteFile(id, filename)}
               >
                 <ClearIcon fontSize="small" />
               </IconButton>
             </FileCard>
           ))
         : null}
+
+      <Notification
+        open={isDeletedFile || isUsedFile}
+        onClose={setStatus}
+        isError={isUsedFile}
+        isSuccess={isDeletedFile}
+        message={statusMsg}
+        autoHideDuration={3500}
+      />
     </Grid>
   )
 }
