@@ -132,11 +132,11 @@ export function Timeline({
     setTimelineFiles(prevState => [...timelineFiles])
   }
 
-  function handleRemoveFile(id) {
+  function handleDeleteFile(id) {
     const fileObj = timelineFiles.find(item => item.id === id)
 
     const isConfirmed = confirm(
-      `آیا فایل ${fileObj.filename} از نوار زمان حذف شود؟`,
+      `آیا فایل "${fileObj.filename}" از نوار زمان حذف شود؟`,
     )
 
     if (isConfirmed) {
@@ -283,7 +283,7 @@ export function Timeline({
                         duration={duration}
                         thumbnail={thumbnail}
                         updateFileFn={handleUpdateTimelineFiles}
-                        removeFileFn={handleRemoveFile}
+                        deleteFileFn={handleDeleteFile}
                       />
                     </Box>
                   ))}
@@ -304,7 +304,7 @@ export function Timeline({
         <SendButton
           lableText="ذخیره"
           isSending={isSending}
-          isSent={isSent}
+          isSuccess={isSent}
           iconCmp={<SaveIcon />}
           onClick={() => saveTimelineFn(timelineFiles)}
         />
@@ -319,7 +319,7 @@ function FileCard({
   duration,
   thumbnail,
   updateFileFn,
-  removeFileFn,
+  deleteFileFn,
 }) {
   const [openTimePicker, setOpenTimePicker] = React.useState(false)
   const isTimePicker = openTimePicker
@@ -359,7 +359,7 @@ function FileCard({
         <IconButton
           size="small"
           sx={{p: 0, ':hover': {color: 'error.main'}}}
-          onClick={() => removeFileFn(id)}
+          onClick={() => deleteFileFn(id)}
         >
           <ClearIcon fontSize="small" />
         </IconButton>

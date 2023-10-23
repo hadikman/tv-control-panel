@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {useRouter} from 'next/router'
 import axiosClient from 'util/axios-http'
-import {GET_ZONE_TIMElINE_API, SAVE_ZONE_TIMELINE_API} from 'util/api-url'
+import {GET_ZONE_TIMELINE_API, SAVE_ZONE_TIMELINE_API} from 'util/api-url'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {DndContext} from '@dnd-kit/core'
-import {FilesGrid, Timeline} from 'components/UI'
+import {FilesGrid, Timeline, Notification} from 'components/UI'
 import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
@@ -17,13 +17,13 @@ export function FilesAndTimeline({sx, ...props}) {
   const queryClient = useQueryClient()
   const {data, isSuccess} = useQuery({
     queryKey: ['timeline-data', q],
-    queryFn: () => axiosClient.post(GET_ZONE_TIMElINE_API, {zoneID: +q}),
+    queryFn: () => axiosClient.post(GET_ZONE_TIMELINE_API, {zoneID: +q}),
     refetchOnWindowFocus: false,
   })
   const {
-    mutate,
+    mutate: mutateToSaveTimeline,
     isLoading: isSending,
-    isSuccess: isSent,
+    isSuccess: isAddedSuccessfully,
   } = useMutation({
     mutationFn: timelineNewData =>
       axiosClient.post(SAVE_ZONE_TIMELINE_API, timelineNewData),
@@ -32,8 +32,13 @@ export function FilesAndTimeline({sx, ...props}) {
     },
   })
   const [addedFiles, setAddedFiles] = React.useState([])
+  const [status, setStatus] = React.useState('')
 
   let timelineData = React.useMemo(() => [], [])
+
+  const isAddedZone = status === 'added'
+
+  const statusMsg = isAddedZone ? 'نوار زمان با موفقیت ذخیره گردید' : ''
 
   if (isSuccess) {
     if (data.data.success) {
@@ -53,7 +58,11 @@ export function FilesAndTimeline({sx, ...props}) {
         ])
       }
     }
-  }, [isSuccess, timelineData, data])
+
+    if (isAddedSuccessfully) {
+      setStatus('added')
+    }
+  }, [isSuccess, data, timelineData, isAddedSuccessfully])
 
   function handleDragEnd(event) {
     const {active} = event
@@ -80,7 +89,7 @@ export function FilesAndTimeline({sx, ...props}) {
     )
     const newTimelineData = {zoneID: +q, timeline: manipulatedTimelineObj}
 
-    mutate(newTimelineData)
+    mutateToSaveTimeline(newTimelineData)
   }
 
   return (
@@ -99,9 +108,17 @@ export function FilesAndTimeline({sx, ...props}) {
           filesArr={addedFiles}
           saveTimelineFn={handleOnSaveTimelineState}
           isSending={isSending}
-          isSent={isSent}
+          isSent={isAddedSuccessfully}
         />
       </Box>
+
+      <Notification
+        open={isAddedZone}
+        onClose={setStatus}
+        isSuccess={isAddedZone}
+        message={statusMsg}
+        autoHideDuration={3000}
+      />
     </Stack>
   )
 }
