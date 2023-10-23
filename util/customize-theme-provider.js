@@ -9,6 +9,17 @@ let theme = createTheme({
     primary: {main: 'hsl(210, 64%, 31%)'},
     secondary: {main: 'hsl(199, 100%, 42%)'},
   },
+  components: {
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          fontFamily: 'monospace',
+          fontSize: '0.875em',
+          backgroundColor: 'hsl(0 0% 13%)',
+        },
+      },
+    },
+  },
 })
 
 theme = createTheme(theme, {
