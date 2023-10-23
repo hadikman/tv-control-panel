@@ -60,7 +60,6 @@ function filenameValidator(file) {
 }
 
 function DropZone() {
-  const tempurl = 'https://httpbin.org/post'
   const queryClient = useQueryClient()
   const {mutate, isLoading: isSending} = useMutation({
     mutationFn: newFormData =>
@@ -138,7 +137,7 @@ function DropZone() {
     setRejectedFileArr([])
   }
 
-  function handleRemoveFile(name) {
+  function handleDeleteFile(name) {
     setAcceptedFileArr(prevFile => prevFile.filter(file => file.name !== name))
   }
 
@@ -235,7 +234,7 @@ function DropZone() {
                   secondaryAction={
                     <IconButton
                       edge="end"
-                      onClick={() => handleRemoveFile(name)}
+                      onClick={() => handleDeleteFile(name)}
                     >
                       <ClearIcon color="error" />
                     </IconButton>
@@ -311,7 +310,7 @@ function DropZone() {
                 variant="body1"
                 sx={{textAlign: 'center', py: 1, px: 2, mx: 'auto'}}
               >
-                {'با موفقیت بارگذاری شد'} <DoneIcon color="success" />
+                {'با موفقیت بارگذاری گردید'} <DoneIcon color="success" />
               </Typography>
             )}
           </Grid>
