@@ -60,7 +60,7 @@ export default function Zone() {
     const isConfirmed = confirm(`آیا استند "${name}" حذف شود؟`)
 
     if (isConfirmed) {
-      mutateToDeleteStand({standID, name})
+      mutateToDeleteStand({zoneID: +q, standID, name})
     }
   }
 
@@ -131,8 +131,8 @@ export default function Zone() {
                 <Grid key={id} item xs="auto">
                   <Stand
                     id={id}
-                    {...props}
                     deleteStandFn={handleOnDeleteStand}
+                    {...props}
                   />
                 </Grid>
               ))
