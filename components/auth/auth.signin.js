@@ -54,8 +54,8 @@ function SignIn() {
     }
 
     const userData = {
-      username: formData.get('username'),
-      password: formData.get('password'),
+      username: formData.get('username').trim(),
+      password: formData.get('password').trim(),
     }
 
     const data = await fetchLoginData(userData)
