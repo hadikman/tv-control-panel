@@ -5,6 +5,8 @@ import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import Tooltip from '@mui/material/Tooltip'
+import Zoom from '@mui/material/Zoom'
 import Skeleton from '@mui/material/Skeleton'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import {generateListOfIndex} from 'util/helper-functions'
@@ -62,17 +64,19 @@ export function FilesGrid() {
                   </IconButton>
                 </Draggable>
 
-                <Typography
-                  variant="caption"
-                  sx={{
-                    flexGrow: 1,
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {filename}
-                </Typography>
+                <Tooltip TransitionComponent={Zoom} title={filename} arrow>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      flexGrow: 1,
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {filename}
+                  </Typography>
+                </Tooltip>
               </FileCard>
             ))
           : null}
