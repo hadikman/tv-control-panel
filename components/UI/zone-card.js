@@ -2,28 +2,31 @@ import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardActions from '@mui/material/CardActions'
 import CardContent from '@mui/material/CardContent'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
-import AddIcon from '@mui/icons-material/Add'
+import CircularProgress from '@mui/material/CircularProgress'
+import ClearIcon from '@mui/icons-material/Clear'
+import PermMediaIcon from '@mui/icons-material/PermMedia'
 
-function ZoneCard({name, videosCount, slug}) {
+function ZoneCard({id, name, stands, thumbnails = [], deleteZoneFn}) {
   const isLoading = false
-  const videosThumbnail = [...videosCount]
-  const videosThumbnailCount = videosThumbnail.length
-  const isEmptyZone = videosThumbnailCount === 0
+  const standsCount = stands.length
+  const filesThumbnail = [...thumbnails]
+  const filesThumbnailCount = filesThumbnail.length
+  const isEmptyZone = filesThumbnailCount === 0
   const DO_NOT_CHANGE_THIS_VALUE = 3
   const GRID_COLS = DO_NOT_CHANGE_THIS_VALUE
   const THUMBNAILS_IN_EACH_ROW = GRID_COLS + 1
-  const THUMBNAILS_IN_SECOND_ROW = videosThumbnailCount - THUMBNAILS_IN_EACH_ROW
-  const isMoreThanOneRow = videosThumbnailCount >= THUMBNAILS_IN_EACH_ROW
+  const THUMBNAILS_IN_SECOND_ROW = filesThumbnailCount - THUMBNAILS_IN_EACH_ROW
+  const isMoreThanOneRow = filesThumbnailCount >= THUMBNAILS_IN_EACH_ROW
 
   const colSpanInFirstRow = isMoreThanOneRow
     ? GRID_COLS
-    : 12 / videosThumbnailCount
+    : 12 / filesThumbnailCount
   const colSpanInSecondRow = 12 / THUMBNAILS_IN_SECOND_ROW
 
   return (
@@ -34,6 +37,7 @@ function ZoneCard({name, videosCount, slug}) {
         '--card-name-height':
           'calc(var(--card-height) - var(--card-content-height))',
         height: 'var(--card-height)',
+        position: 'relative',
       }}
     >
       <CardContent sx={{height: 'var(--card-content-height)', p: 0}}>
@@ -41,7 +45,10 @@ function ZoneCard({name, videosCount, slug}) {
           container
           sx={{
             height: '100%',
-            bgcolor: 'darkClr.main',
+            bgcolor: 'hsl(0 0% 25%)',
+            border: '3px solid',
+            borderColor: 'darkClr.main',
+            position: 'relative',
             ...(isLoading ||
               (isEmptyZone && {
                 justifyContent: 'center',
@@ -52,13 +59,9 @@ function ZoneCard({name, videosCount, slug}) {
           {isLoading ? (
             <CircularProgress color="accentClr" />
           ) : isEmptyZone ? (
-            <Link href={`/zones/${slug}`}>
-              <IconButton color="accentClr" size="large">
-                <AddIcon fontSize="large" />
-              </IconButton>
-            </Link>
+            <PermMediaIcon fontSize="large" color="alternativeClr" />
           ) : (
-            videosThumbnail.map((imgSrc, index) => {
+            filesThumbnail.map((imgSrc, index) => {
               const count = index + 1
 
               return (
@@ -87,28 +90,59 @@ function ZoneCard({name, videosCount, slug}) {
               )
             })
           )}
+
+          <Box sx={{position: 'absolute', bottom: 8, left: 8}}>
+            <Typography
+              variant="caption"
+              color="lightClr.main"
+            >{`تعداد استندها: ${standsCount}`}</Typography>
+          </Box>
         </Grid>
       </CardContent>
+
       <CardActions
         sx={{
           height: 'var(--card-name-height)',
           justifyContent: 'center',
+          alignItems: 'center',
           p: 0,
           '& > .link': {
+            height: '100%',
+            display: 'grid',
+            alignContent: 'center',
             flexGrow: 1,
             textAlign: 'center',
             px: 1,
+            transition: theme =>
+              `${theme.transitions.create(['background-color'])}`,
+            ':hover': {
+              bgcolor: 'greyClr.main',
+            },
           },
         }}
       >
-        {isEmptyZone ? (
-          <Button size="small">{name}</Button>
-        ) : (
-          <Link className="link" href={`/zones/${slug}`}>
-            <Button size="small">{name}</Button>
-          </Link>
-        )}
+        <Link className="link" href={`/zones/zone?q=${id}`}>
+          {name}
+        </Link>
       </CardActions>
+
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bgcolor: 'error.main',
+          borderBottomLeftRadius: '1rem',
+        }}
+      >
+        <IconButton
+          color=""
+          fontSize="small"
+          onClick={() => deleteZoneFn(id, name)}
+        >
+          <ClearIcon fontSize="small" />
+        </IconButton>
+      </Box>
     </Card>
   )
 }
