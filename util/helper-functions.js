@@ -15,17 +15,17 @@ export function generateKeyCopy(id) {
 }
 
 export function milisecondsToTime(milisecond) {
-  let h, m, s
+  const hours = Math.floor(milisecond / 3600000)
+  milisecond %= 3600000
+  const minutes = Math.floor(milisecond / 60000)
+  milisecond %= 60000
+  const seconds = Math.floor(milisecond / 1000)
 
-  h = Math.floor(milisecond / 1000 / 60 / 60)
-  m = Math.floor((milisecond / 1000 / 60 / 60 - h) * 60)
-  s = Math.floor(((milisecond / 1000 / 60 / 60 - h) * 60 - m) * 60)
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 
-  h = `${h < 10 ? '0' : ''}${h}`
-  m = `${m < 10 ? '0' : ''}${m}`
-  s = `${s < 10 ? '0' : ''}${s}`
-
-  return `${h}:${m}:${s}`
+  return formattedTime
 }
 
 export function bytesToMemoryUnit(bytes) {
