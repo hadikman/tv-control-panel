@@ -100,6 +100,7 @@ function DropZone() {
     }
 
     if (isRejectedFiles) {
+      // eslint-disable-next-line no-unused-vars
       setRejectedFileArr(prevState => rejectedFiles.map(file => file))
     }
   }, [])

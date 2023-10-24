@@ -54,6 +54,7 @@ export function FilesAndTimeline({sx, ...props}) {
   React.useEffect(() => {
     if (isSuccess) {
       if (data.success) {
+        // eslint-disable-next-line no-unused-vars
         setAddedFiles(prevState => [
           ...timelineData.map(item => ({
             ...item,
@@ -73,6 +74,7 @@ export function FilesAndTimeline({sx, ...props}) {
     const {active} = event
     const {id, filename, duration, thumbnails} = active.data.current
 
+    // eslint-disable-next-line no-unused-vars
     setAddedFiles(prevState => [
       {
         id: generateKeyCopy(id),

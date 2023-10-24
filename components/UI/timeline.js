@@ -79,6 +79,7 @@ export function Timeline({
       if (isSingleFile) {
         setTimelineFiles(prevState => [...prevState, ...filesArr])
       } else {
+        // eslint-disable-next-line no-unused-vars
         setTimelineFiles(prevState => filesArr)
       }
     }
@@ -90,6 +91,7 @@ export function Timeline({
         return acc + currentFile.duration
       }, 0)
 
+      // eslint-disable-next-line no-unused-vars
       setTotalDuration(prevState => total)
     }
   }, [timelineFiles])
@@ -129,6 +131,7 @@ export function Timeline({
     updateFileObj.duration = duration
 
     setTotalDuration(prevState => prevState + duration)
+    // eslint-disable-next-line no-unused-vars
     setTimelineFiles(prevState => [...timelineFiles])
   }
 
