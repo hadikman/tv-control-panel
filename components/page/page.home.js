@@ -17,15 +17,15 @@ import {customVerticalScrollbar} from 'util/scrollbar-group'
 export default function HomePage({...props}) {
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['server-status'],
-    queryFn: () => axiosClient.post(SERVER_STATUS_API),
+    queryFn: () => axiosClient.post(SERVER_STATUS_API).then(res => res.data),
   })
 
   let serverStatusData = []
   let overallStatusData = []
 
   if (isSuccess) {
-    serverStatusData = data.data.data.serverStatus
-    overallStatusData = data.data.data.overallStatus
+    serverStatusData = data.data.serverStatus
+    overallStatusData = data.data.overallStatus
   }
 
   return (
