@@ -20,7 +20,8 @@ export function PreviewMediaFiles() {
     mutate: mutateToDeleteFile,
     isSuccess: isDeletedSuccessfully,
   } = useMutation({
-    mutationFn: file => axiosClient.post(DELETE_FILE_API, file),
+    mutationFn: file =>
+      axiosClient.post(DELETE_FILE_API, file).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['media-files-data']})
     },
@@ -41,14 +42,14 @@ export function PreviewMediaFiles() {
   const generatedListOfIndex = generateListOfIndex(3)
 
   if (isSuccess) {
-    if (data.data.success) {
-      filesData = data.data.data.files
+    if (data.success) {
+      filesData = data.data.files
     }
   }
 
   React.useEffect(() => {
     if (isDeletedSuccessfully) {
-      if (deleteFileResponse.data.success) {
+      if (deleteFileResponse.success) {
         setStatus('deleted')
       } else {
         setStatus('used')

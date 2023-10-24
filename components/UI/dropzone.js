@@ -63,13 +63,15 @@ function DropZone() {
   const queryClient = useQueryClient()
   const {mutate, isLoading: isSending} = useMutation({
     mutationFn: newFormData =>
-      axiosClient.post(UPLOAD_FILE_API, newFormData, {
-        timeout: UPLOAD_TIMEOUT,
-      }),
+      axiosClient
+        .post(UPLOAD_FILE_API, newFormData, {
+          timeout: UPLOAD_TIMEOUT,
+        })
+        .then(res => res.data),
     onSuccess: data => {
       queryClient.invalidateQueries({queryKey: ['media-files-data']})
 
-      if (data.status === 200) {
+      if (data.success) {
         setAcceptedFileArr([])
         setIsUploaded(true)
       }
@@ -302,6 +304,8 @@ function DropZone() {
                           : 'فایل مجاز می‌باشد.'
                       } اکنون آپلود نمایید`}
                 </Button>
+
+                {isSending && <LinearProgress />}
               </Grid>
             )}
 
@@ -314,8 +318,6 @@ function DropZone() {
               </Typography>
             )}
           </Grid>
-
-          {isSending && <LinearProgress />}
         </Grid>
       </Grid>
     </Stack>

@@ -23,7 +23,8 @@ export default function Zone() {
   const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['stands-data', q],
-    queryFn: () => axiosClient.post(GET_STANDS_API, {zoneID: +q}),
+    queryFn: () =>
+      axiosClient.post(GET_STANDS_API, {zoneID: +q}).then(res => res.data),
   })
   const {mutate: mutateToDeleteStand, isSuccess: isDeletedSuccessfully} =
     useMutation({
@@ -43,8 +44,8 @@ export default function Zone() {
   const statusMsg = isDeletedStand ? 'استند با موفقیت حذف گردید' : ''
 
   if (isSuccess) {
-    if (data.data.success) {
-      standsData = data.data.data
+    if (data.success) {
+      standsData = data.data
       totalStands = standsData.length
       isEmptyStand = standsData.length === 0
     }
@@ -198,15 +199,15 @@ function NewStandForm() {
     : isInvalidMac
     ? 'این مک آدرس معتبر نیست'
     : isDuplicated
-    ? 'این شماره آی پی/مک آدرس قبلاً ثبت شده است'
+    ? 'این نام استند/آی پی/مک آدرس قبلاً ثبت شده یا در زون دیگری استفاده شده است'
     : ''
 
   React.useEffect(() => {
     if (newStandResponse) {
-      if (newStandResponse.data.success) {
+      if (newStandResponse.success) {
         setStatus('registered')
       } else {
-        const {message} = newStandResponse.data
+        const {message} = newStandResponse
 
         switch (message) {
           case 'ip address not valid':
@@ -371,7 +372,7 @@ function NewStandForm() {
         isError={isNewStandError}
         isSuccess={isRegisteredNewStand}
         message={statusMsg}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
       />
     </Box>
   )

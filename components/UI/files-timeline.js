@@ -17,7 +17,10 @@ export function FilesAndTimeline({sx, ...props}) {
   const queryClient = useQueryClient()
   const {data, isSuccess} = useQuery({
     queryKey: ['timeline-data', q],
-    queryFn: () => axiosClient.post(GET_ZONE_TIMELINE_API, {zoneID: +q}),
+    queryFn: () =>
+      axiosClient
+        .post(GET_ZONE_TIMELINE_API, {zoneID: +q})
+        .then(res => res.data),
     refetchOnWindowFocus: false,
   })
   const {
@@ -26,7 +29,9 @@ export function FilesAndTimeline({sx, ...props}) {
     isSuccess: isAddedSuccessfully,
   } = useMutation({
     mutationFn: timelineNewData =>
-      axiosClient.post(SAVE_ZONE_TIMELINE_API, timelineNewData),
+      axiosClient
+        .post(SAVE_ZONE_TIMELINE_API, timelineNewData)
+        .then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['timeline-data', q]})
     },
@@ -41,14 +46,14 @@ export function FilesAndTimeline({sx, ...props}) {
   const statusMsg = isAddedZone ? 'نوار زمان با موفقیت ذخیره گردید' : ''
 
   if (isSuccess) {
-    if (data.data.success) {
-      timelineData = data.data.data
+    if (data.success) {
+      timelineData = data.data
     }
   }
 
   React.useEffect(() => {
     if (isSuccess) {
-      if (data.data.success) {
+      if (data.success) {
         setAddedFiles(prevState => [
           ...timelineData.map(item => ({
             ...item,

@@ -31,7 +31,7 @@ function useMediaFilesData() {
     status,
   } = useQuery({
     queryKey: ['media-files-data'],
-    queryFn: () => axiosClient.post(GET_FILE_LIST_API),
+    queryFn: () => axiosClient.post(GET_FILE_LIST_API).then(res => res.data),
   })
 
   return {

@@ -16,12 +16,13 @@ export default function ZonesPage({...props}) {
   const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useQuery({
     queryKey: ['zones-data'],
-    queryFn: () => axiosClient.post(GET_ZONES_API),
+    queryFn: () => axiosClient.post(GET_ZONES_API).then(res => res.data),
   })
 
   const {mutate: mutateToDeleteZone, isSuccess: isDeletedSuccessfully} =
     useMutation({
-      mutationFn: zone => axiosClient.post(DELETE_ZONE_API, zone),
+      mutationFn: zone =>
+        axiosClient.post(DELETE_ZONE_API, zone).then(res => res.data),
       onSuccess: () => {
         queryClient.invalidateQueries({queryKey: ['zones-data']})
       },
@@ -38,7 +39,7 @@ export default function ZonesPage({...props}) {
   const generatedListOfIndex = generateListOfIndex(4)
 
   if (isSuccess) {
-    zonesData = data.data.data
+    zonesData = data.data
   }
 
   React.useEffect(() => {
@@ -119,7 +120,8 @@ function NewZoneForm() {
     isLoading: isSending,
     isSuccess: isAddedSuccessfully,
   } = useMutation({
-    mutationFn: newZone => axiosClient.post(ADD_ZONE_API, newZone),
+    mutationFn: newZone =>
+      axiosClient.post(ADD_ZONE_API, newZone).then(res => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['zones-data']})
     },
@@ -140,7 +142,7 @@ function NewZoneForm() {
 
   React.useEffect(() => {
     if (newZoneResponse) {
-      if (newZoneResponse.data.success) {
+      if (newZoneResponse.success) {
         setStatus('added')
       } else {
         setStatus('duplicated')
