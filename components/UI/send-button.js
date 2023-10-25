@@ -68,4 +68,4 @@ function SendButton({
   )
 }
 
-export {SendButton}
+export default SendButton

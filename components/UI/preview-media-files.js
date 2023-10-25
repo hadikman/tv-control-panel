@@ -3,7 +3,8 @@ import axiosClient from 'util/axios-http'
 import {DELETE_FILE_API} from 'util/api-url'
 import useMediaFilesData from 'hook/useMediaFilesData'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
-import {FileCard, Notification} from 'components/UI'
+import FileCard from 'components/UI/file-card'
+import Notification from 'components/UI/notification'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
@@ -12,7 +13,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import {generateListOfIndex} from 'util/helper-functions'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
 
-export function PreviewMediaFiles() {
+export default function PreviewMediaFiles() {
   const queryClient = useQueryClient()
   const {data, isLoading, isSuccess} = useMediaFilesData()
   const {

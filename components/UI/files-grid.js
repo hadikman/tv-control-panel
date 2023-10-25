@@ -1,6 +1,7 @@
 import * as React from 'react'
 import useMediaFilesData from 'hook/useMediaFilesData'
-import {Draggable, FileCard} from 'components/UI'
+import Draggable from 'components/UI/draggable'
+import FileCard from 'components/UI/file-card'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
@@ -11,7 +12,7 @@ import Skeleton from '@mui/material/Skeleton'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import {generateListOfIndex} from 'util/helper-functions'
 
-export function FilesGrid() {
+export default function FilesGrid() {
   const {data, isLoading, isSuccess} = useMediaFilesData()
 
   let filesData = []

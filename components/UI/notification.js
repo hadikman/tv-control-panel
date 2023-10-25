@@ -47,4 +47,4 @@ function Notification({
   )
 }
 
-export {Notification}
+export default Notification

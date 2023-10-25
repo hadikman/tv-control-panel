@@ -147,4 +147,4 @@ function ZoneCard({id, name, stands, thumbnails = [], deleteZoneFn}) {
   )
 }
 
-export {ZoneCard}
+export default ZoneCard

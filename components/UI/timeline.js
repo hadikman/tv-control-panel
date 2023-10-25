@@ -18,7 +18,7 @@ import {
 import {CSS} from '@dnd-kit/utilities'
 import {restrictToHorizontalAxis} from '@dnd-kit/modifiers'
 import Image from 'next/image'
-import {SendButton} from 'components/UI'
+import SendButton from 'components/UI/send-button'
 import useClickOutsideElement from 'hook/useClickOutsideElement'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -35,7 +35,7 @@ import DoneIcon from '@mui/icons-material/Done'
 import {milisecondsToTime, truncateWords} from 'util/helper-functions'
 import {customHorizontalScrollbar} from 'util/scrollbar-group'
 
-export function Timeline({
+export default function Timeline({
   id,
   filesArr,
   saveTimelineFn,

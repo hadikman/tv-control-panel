@@ -27,4 +27,4 @@ function Draggable({id, data, sx, children, ...props}) {
   )
 }
 
-export {Draggable}
+export default Draggable

@@ -1,4 +1,6 @@
-import {Header, Main, Footer} from './index'
+import Header from './layout.header'
+import Main from './layout.main'
+import Footer from './layout.footer'
 import VAZIRMATN_FONT from 'util/share-font'
 
 function Layout({children}) {

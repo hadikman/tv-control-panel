@@ -17,4 +17,4 @@ function Content({children, ...props}) {
   )
 }
 
-export {Content}
+export default Content

@@ -132,4 +132,4 @@ function GaugeMeter({speed = -1}) {
   )
 }
 
-export {GaugeMeter}
+export default GaugeMeter

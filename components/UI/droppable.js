@@ -16,4 +16,4 @@ function Droppable({id, data, sx, children, ...props}) {
   )
 }
 
-export {Droppable}
+export default Droppable

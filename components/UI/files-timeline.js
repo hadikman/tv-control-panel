@@ -4,14 +4,16 @@ import axiosClient from 'util/axios-http'
 import {GET_ZONE_TIMELINE_API, SAVE_ZONE_TIMELINE_API} from 'util/api-url'
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 import {DndContext} from '@dnd-kit/core'
-import {FilesGrid, Timeline, Notification} from 'components/UI'
+import FilesGrid from 'components/UI/files-grid'
+import Timeline from 'components/UI/timeline'
+import Notification from 'components/UI/notification'
 import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Chip from '@mui/material/Chip'
 import {generateKeyCopy} from 'util/helper-functions'
 
-export function FilesAndTimeline({sx, ...props}) {
+export default function FilesAndTimeline({sx, ...props}) {
   const router = useRouter()
   const {q} = router.query
   const queryClient = useQueryClient()

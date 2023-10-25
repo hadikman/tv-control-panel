@@ -325,4 +325,4 @@ function DropZone() {
   )
 }
 
-export {DropZone}
+export default DropZone

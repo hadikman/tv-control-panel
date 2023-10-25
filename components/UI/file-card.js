@@ -8,7 +8,13 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle'
 import StopCircleIcon from '@mui/icons-material/StopCircle'
 import {milisecondsToTime} from 'util/helper-functions'
 
-export function FileCard({filename, duration, thumbnails, sx, children}) {
+export default function FileCard({
+  filename,
+  duration,
+  thumbnails,
+  sx,
+  children,
+}) {
   return (
     <Grid
       item

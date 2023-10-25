@@ -1,5 +1,6 @@
 import * as React from 'react'
-import {DropZone, PreviewMediaFiles} from 'components/UI'
+import DropZone from 'components/UI/dropzone'
+import PreviewMediaFiles from 'components/UI/preview-media-files'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 

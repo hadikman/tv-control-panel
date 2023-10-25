@@ -1,4 +1,5 @@
-import {Content, Sidebar} from './index'
+import Content from './layout.content'
+import Sidebar from './layout.sidebar'
 import LoadingBetweenPages from 'components/loading-between-pages'
 import Grid from '@mui/material/Grid'
 
@@ -29,4 +30,4 @@ function Main({children, ...props}) {
   )
 }
 
-export {Main}
+export default Main
