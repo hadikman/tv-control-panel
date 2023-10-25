@@ -52,16 +52,41 @@ export default function Timeline({
   const isEmptyTimeline = addedFilesCount === 0
   const isActiveGrabbedItem = activeGrabbedItem.id !== 0
 
-  const timeChunkInMilisec = 300000 // 5 minutes
-  const occupiedCellCount =
-    totalDuration !== 0 ? totalDuration / timeChunkInMilisec : 0
+  const EACH_SECOND_IN_MILISECOND = 1000
+  const EACH_MINUTE_IN_MILISECOND = EACH_SECOND_IN_MILISECOND * 60
+  const TIME_CHUNK_IN_MINUTES = 5
+  const TIME_CHUNK_IN_MILISECOND =
+    EACH_MINUTE_IN_MILISECOND * TIME_CHUNK_IN_MINUTES // 5 minutes
 
   const durationTimeLength = [
     ...Array.from({length: 145}, (_, i) => ({
-      cellLength: milisecondsToTime(timeChunkInMilisec * i),
-      occupiedCell: i < occupiedCellCount ? 100 : 0,
+      cellLength: i === 0 ? 0 : milisecondsToTime(TIME_CHUNK_IN_MILISECOND * i),
     })),
   ]
+
+  const totalMinutes = Math.floor(totalDuration / EACH_MINUTE_IN_MILISECOND)
+  const totalSeconds = Math.floor(
+    (totalDuration % EACH_MINUTE_IN_MILISECOND) / EACH_SECOND_IN_MILISECOND,
+  )
+
+  const chunksOfMinutes = Math.floor(totalMinutes / 5)
+  const remainingMinutes = totalMinutes % 5
+
+  const occupiedCells = Array(chunksOfMinutes).fill([100, 100, 100, 100, 100])
+
+  if (remainingMinutes > 0 || totalSeconds > 0) {
+    occupiedCells.push([])
+  }
+
+  if (occupiedCells.length > 0) {
+    occupiedCells[occupiedCells.length - 1].push(
+      ...Array(remainingMinutes).fill(100),
+    )
+  }
+
+  if (totalSeconds > 0) {
+    occupiedCells[occupiedCells.length - 1].push(totalSeconds)
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -170,7 +195,6 @@ export default function Timeline({
               '--short-line-gap': 'calc(var(--short-line) + var(--bottom-gap))',
               display: 'grid',
               gap: 1,
-              textAlign: 'center',
               color: 'lightClr.main',
               pt: 1,
               pb: 2,
@@ -182,11 +206,13 @@ export default function Timeline({
                 gridAutoFlow: 'column',
                 gridAutoColumns: 'var(--cell-width)',
                 py: 1,
+                mx: 1,
                 overflowX: 'auto',
+                position: 'relative',
                 ...customHorizontalScrollbar,
               }}
             >
-              {durationTimeLength.map(({cellLength, occupiedCell}, idx) => (
+              {durationTimeLength.map(({cellLength}, idx) => (
                 <Box key={idx}>
                   <Box
                     data-top-side-container
@@ -199,37 +225,62 @@ export default function Timeline({
                           : 'var(--bottom-gap)',
                     }}
                   >
-                    <Box sx={{position: 'relative'}}>
-                      <Box
-                        sx={{
-                          width: '1px',
-                          height:
-                            idx % 2 === 1
-                              ? 'var(--short-line)'
-                              : 'var(--long-line)',
-                          bgcolor: 'lightClr.main',
-                          mx: 'auto',
-                        }}
-                      ></Box>
-
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: 0,
-                          width: `${occupiedCell}%`,
-                          height: '4px',
-                          bgcolor: 'success.light',
-                        }}
-                      ></Box>
-                    </Box>
+                    <Box
+                      sx={{
+                        width: '1px',
+                        height:
+                          idx % 2 === 1
+                            ? 'var(--short-line)'
+                            : 'var(--long-line)',
+                        bgcolor: 'lightClr.main',
+                      }}
+                    ></Box>
                   </Box>
 
-                  <Box data-duration sx={{fontSize: '0.75rem'}}>
-                    {cellLength}
+                  <Box
+                    data-duration
+                    sx={{fontSize: '0.75rem', textAlign: 'center', ml: -6.5}}
+                  >
+                    <Box>{cellLength}</Box>
                   </Box>
                 </Box>
               ))}
+
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '10px',
+                  left: 0,
+                  display: 'grid',
+                  gridAutoFlow: 'column',
+                  gridAutoColumns: 'var(--cell-width)',
+                }}
+              >
+                {occupiedCells.map((count, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      height: '4px',
+                      display: 'grid',
+                      gridAutoFlow: 'column',
+                      gridTemplateColumns: 'repeat(5, 1fr)',
+                    }}
+                  >
+                    {count.map((cellChunkWidth, idx) => (
+                      <Box
+                        key={idx}
+                        sx={{
+                          width: `${cellChunkWidth}%`,
+                          bgcolor:
+                            cellChunkWidth < 100
+                              ? 'warning.main'
+                              : 'success.light',
+                        }}
+                      ></Box>
+                    ))}
+                  </Box>
+                ))}
+              </Box>
             </Box>
           </Box>
 
