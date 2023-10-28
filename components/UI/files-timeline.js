@@ -16,6 +16,7 @@ import {generateKeyCopy} from 'util/helper-functions'
 export default function FilesAndTimeline({sx, ...props}) {
   const router = useRouter()
   const {q} = router.query
+  const isQueryParam = q !== undefined
   const queryClient = useQueryClient()
   const {data, isSuccess} = useQuery({
     queryKey: ['timeline-data', q],
@@ -24,6 +25,7 @@ export default function FilesAndTimeline({sx, ...props}) {
         .post(GET_ZONE_TIMELINE_API, {zoneID: +q})
         .then(res => res.data),
     refetchOnWindowFocus: false,
+    enabled: isQueryParam,
   })
   const {
     mutate: mutateToSaveTimeline,
