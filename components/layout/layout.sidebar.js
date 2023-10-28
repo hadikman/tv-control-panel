@@ -21,6 +21,7 @@ import HomeIcon from '@mui/icons-material/Home'
 import GridViewIcon from '@mui/icons-material/GridView'
 import Logout from '@mui/icons-material/Logout'
 import PermMediaIcon from '@mui/icons-material/PermMedia'
+import WindowIcon from '@mui/icons-material/Window'
 
 const duration = 15
 const menuLinkFadeItem = {
@@ -51,6 +52,11 @@ const menuListItems = [
     name: 'زون ها',
     icon: <GridViewIcon />,
     href: '/zones',
+  },
+  {
+    name: 'استندها',
+    icon: <WindowIcon />,
+    href: '/stands',
   },
 ]
 

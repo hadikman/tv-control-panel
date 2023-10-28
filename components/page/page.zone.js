@@ -1,108 +1,309 @@
 import * as React from 'react'
-import axiosClient from 'util/axios-http'
-import {GET_STANDS_API, ADD_STAND_API, DELETE_STAND_API} from 'util/api-url'
 import {useRouter} from 'next/router'
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
+import useQueryData from 'hook/useQueryData'
+import useMutateData from 'hook/useMutateData'
+import {
+  GET_ALL_STANDS_API,
+  GET_ZONE_STANDS_API,
+  SAVE_ZONE_STANDS_API,
+} from 'util/api-url'
 import FilesAndTimeline from 'components/UI/files-timeline'
+import StandCard from 'components/UI/stand-card'
 import SendButton from 'components/UI/send-button'
 import Notification from 'components/UI/notification'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
-import Paper from '@mui/material/Paper'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import Button from '@mui/material/Button'
+import Modal from '@mui/material/Modal'
 import Skeleton from '@mui/material/Skeleton'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import StopIcon from '@mui/icons-material/Stop'
+import AddIcon from '@mui/icons-material/Add'
+import ClearIcon from '@mui/icons-material/Clear'
+import SaveIcon from '@mui/icons-material/Save'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
+import VAZIRMATN_FONT from 'util/share-font'
 
 export default function Zone() {
   const router = useRouter()
   const {q} = router.query
-  const queryClient = useQueryClient()
-  const {data, isLoading, isSuccess} = useQuery({
-    queryKey: ['stands-data', q],
-    queryFn: () =>
-      axiosClient.post(GET_STANDS_API, {zoneID: +q}).then(res => res.data),
+  const isQueryParam = q !== undefined
+  const {
+    data: allStandsData,
+    isLoading: isLoadingAllStands,
+    isSuccess: isSuccessAllStands,
+  } = useQueryData({
+    queryKey: ['all-stands-data'],
+    url: GET_ALL_STANDS_API,
+    enabled: isQueryParam,
   })
-  const {mutate: mutateToDeleteStand, isSuccess: isDeletedSuccessfully} =
-    useMutation({
-      mutationFn: stand => axiosClient.post(DELETE_STAND_API, stand),
-      onSuccess: () => {
-        queryClient.invalidateQueries({queryKey: ['stands-data', q]})
-      },
-    })
+  const {
+    data: standsData,
+    isLoading: isLoadingStandsData,
+    isSuccess: isSuccessStandsData,
+  } = useQueryData({
+    queryKey: ['stands-data', q],
+    url: GET_ZONE_STANDS_API,
+    body: {zoneID: +q},
+    enabled: isQueryParam,
+  })
+  const {
+    mutate: mutateToSaveStands,
+    isLoading: isSending,
+    isSuccess: isSavedSuccessfully,
+  } = useMutateData({
+    queryKey: ['stands-data', q],
+    url: SAVE_ZONE_STANDS_API,
+  })
+
+  const [freeStands, setFreeStands] = React.useState([])
+  const [addedStands, setAddedStands] = React.useState([])
+  const [openModal, setOpenModal] = React.useState(false)
   const [status, setStatus] = React.useState('')
 
-  let standsData = []
   let totalStands = 0
-  let isEmptyStand = false
 
-  const isDeletedStand = status === 'deleted'
+  let isEmptyAllStands = false
+  const isEmptyAddedStands = false
+  const isSavedStands = status === 'saved'
 
-  const statusMsg = isDeletedStand ? 'استند با موفقیت حذف گردید' : ''
+  const statusMsg = isSavedStands ? 'تغییرات با موفقیت ذخیره گردید' : ''
 
-  if (isSuccess) {
-    if (data.success) {
-      standsData = data.data
-      totalStands = standsData.length
-      isEmptyStand = standsData.length === 0
+  if (isSuccessStandsData) {
+    if (standsData.success) {
+      totalStands = standsData.data.length
     }
   }
 
   React.useEffect(() => {
-    if (isDeletedSuccessfully) {
-      setStatus('deleted')
-    }
-  }, [isDeletedSuccessfully])
+    if (isSuccessAllStands) {
+      const freeAllStandsData = allStandsData.data.filter(
+        stand => stand.zone === null,
+      )
 
-  function handleOnDeleteStand(standID, name) {
-    const isConfirmed = confirm(`آیا استند "${name}" حذف شود؟`)
-
-    if (isConfirmed) {
-      mutateToDeleteStand({zoneID: +q, standID, name})
+      setFreeStands(freeAllStandsData)
     }
+  }, [isSuccessAllStands, allStandsData])
+
+  React.useEffect(() => {
+    if (isSuccessStandsData) {
+      setAddedStands(standsData.data)
+    }
+  }, [isSuccessStandsData, standsData])
+
+  React.useEffect(() => {
+    if (isSavedSuccessfully) {
+      setStatus('saved')
+    }
+  }, [isSavedSuccessfully])
+
+  function handlOpenStandsManagementModal() {
+    setOpenModal(true)
+  }
+
+  function handleCloseStandsManagementModal() {
+    setOpenModal(false)
+  }
+
+  function handleOnAddStand(addedStand) {
+    const isExist = addedStands.some(stand => stand.id === addedStand.id)
+
+    if (!isExist) {
+      setAddedStands(prevState => [...prevState, addedStand])
+      setFreeStands(prevState =>
+        prevState.filter(stand => stand.id !== addedStand.id),
+      )
+    }
+  }
+
+  function handleOnRemoveStand(standData) {
+    setAddedStands(prevState =>
+      prevState.filter(stand => stand.id !== standData.id),
+    )
+    setFreeStands(prevState =>
+      [...prevState, standData].sort((a, b) => a.id - b.id),
+    )
+  }
+
+  function handleOnSaveAddedStands() {
+    const standsID = addedStands.map(stand => stand.id)
+    const newAddedStandsData = {zoneID: +q, stands: standsID}
+
+    mutateToSaveStands(newAddedStandsData)
   }
 
   return (
     <Box>
       <Box sx={{mb: 2}}>
-        <Grid container spacing={1} sx={{'--inline-gap': '16px'}}>
-          <Grid item xs={12} md="auto">
-            <Grid
-              container
-              sx={{
-                height: '80px',
-                alignItems: 'center',
-                gap: 'var(--inline-gap)',
-                textAlign: 'center',
-                border: 'thin solid',
-                borderColor: 'hsl(0 0% 80%)',
-                borderRadius: 'var(--sm-corner)',
-                py: 0.5,
-                px: 'var(--inline-gap)',
-              }}
-            >
-              <Grid item>
-                <Typography variant="body2">
-                  کل استند های متصل: <strong>{totalStands}</strong>
-                </Typography>
+        <Button variant="contained" onClick={handlOpenStandsManagementModal}>
+          مدیریت استندها
+        </Button>
+
+        <Modal
+          className={VAZIRMATN_FONT.className}
+          open={openModal}
+          onClose={handleCloseStandsManagementModal}
+        >
+          <Box
+            sx={{
+              width: '95%',
+              maxWidth: '1200px',
+              bgcolor: 'lightClr.main',
+              p: 2,
+              mt: 7,
+              mx: 'auto',
+            }}
+          >
+            <Grid container spacing={1} sx={{'--inline-gap': '16px'}}>
+              <Grid item xs={4}>
+                <Stack spacing={1}>
+                  <Grid
+                    container
+                    sx={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: 'var(--inline-gap)',
+                      border: 'thin solid',
+                      borderColor: 'hsl(0 0% 80%)',
+                      borderRadius: 'var(--sm-corner)',
+                      py: 1,
+                      px: 'var(--inline-gap)',
+                    }}
+                  >
+                    <Grid item>
+                      <Typography variant="body2">
+                        کل استندهای متصل: <strong>{totalStands}</strong>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  <Box
+                    sx={{
+                      border: 'thin solid',
+                      borderColor: 'hsl(0 0% 80%)',
+                      borderRadius: 'var(--sm-corner)',
+                      overflowY: 'auto',
+                      ...customVerticalScrollbar,
+                    }}
+                  >
+                    <Grid
+                      container
+                      spacing={1}
+                      sx={{
+                        height: '470px',
+                        alignContent: 'flex-start',
+                        textAlign: 'center',
+                        p: 1,
+                      }}
+                    >
+                      {isLoadingAllStands ? (
+                        [1, 2].map(item => (
+                          <Grid key={item} item xs="auto">
+                            <Skeleton
+                              variant="rounded"
+                              width={72}
+                              height={72}
+                            />
+                          </Grid>
+                        ))
+                      ) : isEmptyAllStands ? (
+                        <Grid item xs>
+                          <Typography variant="body2">
+                            در حال حاظر استندی برای افزودن موجود نیست.
+                          </Typography>
+                        </Grid>
+                      ) : (
+                        freeStands.map(({id, name, ...props}) => (
+                          <Grid key={id} item xs="auto">
+                            <StandCard name={name}>
+                              <Button
+                                size="small"
+                                color="primary"
+                                onClick={() =>
+                                  handleOnAddStand({id, name, ...props})
+                                }
+                              >
+                                <AddIcon />
+                              </Button>
+                            </StandCard>
+                          </Grid>
+                        ))
+                      )}
+                    </Grid>
+                  </Box>
+                </Stack>
               </Grid>
-              <Grid item>
-                <Typography variant="body2">
-                  کل انلاین ها: <strong>0</strong>
-                </Typography>
+
+              <Grid item xs={8}>
+                <Grid
+                  container
+                  sx={{
+                    flexDirection: 'column',
+                    border: 'thin solid',
+                    borderColor: 'hsl(0 0% 80%)',
+                    borderRadius: 'var(--sm-corner)',
+                    p: 1.5,
+                  }}
+                >
+                  <Grid
+                    container
+                    spacing={1}
+                    sx={{
+                      alignContent: 'flex-start',
+                      height: '455px',
+                      textAlign: isEmptyAddedStands ? 'left' : 'center',
+                      pl: 0.75,
+                      pb: 1,
+                      overflowY: 'auto',
+                      ...customVerticalScrollbar,
+                    }}
+                  >
+                    {isLoadingStandsData ? (
+                      [1, 2].map(item => (
+                        <Grid key={item} item xs="auto">
+                          <Skeleton variant="rounded" width={72} height={72} />
+                        </Grid>
+                      ))
+                    ) : isEmptyAddedStands ? (
+                      <Grid item xs>
+                        <Typography variant="body2">
+                          حداقل یک استند از کادر سمت راست اضافه نمایید.
+                        </Typography>
+                      </Grid>
+                    ) : (
+                      addedStands.map(({id, name, ...props}) => (
+                        <Grid key={id} item xs="auto">
+                          <StandCard name={name} {...props}>
+                            <Button
+                              size="small"
+                              color="error"
+                              onClick={() =>
+                                handleOnRemoveStand({id, name, ...props})
+                              }
+                            >
+                              <ClearIcon />
+                            </Button>
+                          </StandCard>
+                        </Grid>
+                      ))
+                    )}
+                  </Grid>
+
+                  <Box sx={{mt: 'auto'}}>
+                    <SendButton
+                      lableText="ذخیره"
+                      isSending={isSending}
+                      isSuccess={isSavedSuccessfully}
+                      iconCmp={<SaveIcon />}
+                      onClick={handleOnSaveAddedStands}
+                    />
+                  </Box>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-
-          <Grid item xs={12} md>
-            <NewStandForm />
-          </Grid>
-        </Grid>
+          </Box>
+        </Modal>
       </Box>
 
       <Divider />
@@ -115,34 +316,6 @@ export default function Zone() {
           ...customVerticalScrollbar,
         }}
       >
-        <Box sx={{my: 2}}>
-          <Grid container spacing={1.5} sx={{textAlign: 'center', pl: 0.75}}>
-            {isLoading ? (
-              [1, 2].map(item => (
-                <Grid key={item} item xs="auto">
-                  <Skeleton variant="rounded" width={144} height={64} />
-                </Grid>
-              ))
-            ) : isEmptyStand ? (
-              <Grid item xs="auto">
-                <Typography variant="body2">
-                  لطفاً حداقل یک استند اضافه نمایید.
-                </Typography>
-              </Grid>
-            ) : (
-              standsData.map(({id, ...props}) => (
-                <Grid key={id} item xs="auto">
-                  <Stand
-                    id={id}
-                    deleteStandFn={handleOnDeleteStand}
-                    {...props}
-                  />
-                </Grid>
-              ))
-            )}
-          </Grid>
-        </Box>
-
         <Divider />
 
         <Box sx={{mt: 2}}>
@@ -151,264 +324,12 @@ export default function Zone() {
       </Box>
 
       <Notification
-        open={isDeletedStand}
+        open={isSavedStands}
         onClose={setStatus}
-        isSuccess={isDeletedStand}
+        isSuccess={isSavedStands}
         message={statusMsg}
         autoHideDuration={3000}
       />
     </Box>
-  )
-}
-
-function NewStandForm() {
-  const router = useRouter()
-  const {q} = router.query
-  const queryClient = useQueryClient()
-  const {
-    mutate,
-    isLoading: isSending,
-    isSuccess: isSent,
-    data: newStandResponse,
-  } = useMutation({
-    mutationFn: newStand => axiosClient.post(ADD_STAND_API, newStand),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['stands-data', q]})
-    },
-  })
-
-  const [standName, setStandName] = React.useState('')
-  const [ipNumString, setIpNumString] = React.useState('')
-  const [macAddress, setMacAddress] = React.useState('')
-  const [standNameErrorMessage, setStandNameErrorMessage] = React.useState('')
-  const [ipNumErrorMessage, setIpNumErrorMessage] = React.useState('')
-  const [macAddressErrorMessage, setMacAddressErrorMessage] = React.useState('')
-  const [status, setStatus] = React.useState('')
-
-  const isStandNameError = standNameErrorMessage !== ''
-  const isIpNumError = ipNumErrorMessage !== ''
-  const isMacAddressError = macAddressErrorMessage !== ''
-  const isRegisteredNewStand = status === 'registered'
-  const isInvalidIp = status === 'invalid ip'
-  const isInvalidMac = status === 'invalid mac'
-  const isDuplicated = status === 'duplicated'
-  const isNewStandError = isInvalidIp || isInvalidMac || isDuplicated
-
-  const statusMsg = isRegisteredNewStand
-    ? 'استند جدید با موفقیت اضافه گردید'
-    : isInvalidIp
-    ? 'این آدرس آی پی معتبر نیست'
-    : isInvalidMac
-    ? 'این مک آدرس معتبر نیست'
-    : isDuplicated
-    ? 'این نام استند/آی پی/مک آدرس قبلاً ثبت شده یا در زون دیگری استفاده شده است'
-    : ''
-
-  React.useEffect(() => {
-    if (newStandResponse) {
-      if (newStandResponse.success) {
-        setStatus('registered')
-      } else {
-        const {message} = newStandResponse
-
-        switch (message) {
-          case 'ip address not valid':
-            setStatus('invalid ip')
-            break
-          case 'mac address not valid':
-            setStatus('invalid mac')
-            break
-          case 'duplicated':
-            setStatus('duplicated')
-            break
-          default:
-            break
-        }
-      }
-    }
-  }, [newStandResponse])
-
-  function handleOnStandName(e) {
-    setStandName(e.target.value)
-  }
-
-  function handleOnIpNumString(e) {
-    setIpNumString(e.target.value)
-  }
-
-  function handleOnMacAddress(e) {
-    setMacAddress(e.target.value)
-  }
-
-  function handleOnFocusStandNameInput() {
-    setStandNameErrorMessage('')
-  }
-
-  function handleOnFocusIpNumInput() {
-    setIpNumErrorMessage('')
-  }
-
-  function handleOnFocusMacAddressInput() {
-    setMacAddressErrorMessage('')
-  }
-
-  function handleOnSubmitForm(e) {
-    e.preventDefault()
-
-    const isEmptyStandName = standName === ''
-    const isEmptyIpNUm = ipNumString === ''
-    const isEmptyMacAddress = macAddress === ''
-    const isEmptyInput = isEmptyStandName || isEmptyIpNUm || isEmptyMacAddress
-
-    if (isEmptyInput) {
-      if (isEmptyStandName) {
-        setStandNameErrorMessage('وارد کردن یک نام برای استند الزامی است')
-      }
-      if (isEmptyIpNUm) {
-        setIpNumErrorMessage('وارد کردن یک آی پی برای استند الزامی است')
-      }
-      if (isEmptyMacAddress) {
-        setMacAddressErrorMessage('وارد کردن یک مک آدرس برای استند الزامی است')
-      }
-
-      return
-    }
-
-    const validIp = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/
-    const validMacAddress =
-      /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}.[0-9a-fA-F]{4}.[0-9a-fA-F]{4})$/
-
-    const isValidIp = validIp.test(ipNumString.trim())
-    const isValidMacAddress = validMacAddress.test(macAddress.trim())
-    const isInvalidInput = !isValidIp || !isValidMacAddress
-
-    if (isInvalidInput) {
-      if (!isValidIp) {
-        setIpNumErrorMessage('شماره آی پی صحیح نیست')
-      }
-      if (!isValidMacAddress) {
-        setMacAddressErrorMessage('مک آدرس صحیح نیست')
-      }
-
-      return
-    }
-
-    mutate({
-      name: standName.trim(),
-      ip: ipNumString.trim(),
-      mac: macAddress.trim(),
-      zoneID: +q,
-    })
-
-    setStandName('')
-    setIpNumString('')
-    setMacAddress('')
-  }
-
-  return (
-    <Box>
-      <Grid
-        container
-        component="form"
-        sx={{
-          minHeight: '80px',
-          justifyContent: 'center',
-          alignItems: 'baseline',
-          gap: 4,
-          border: 'thin solid',
-          borderColor: 'hsl(0 0% 80%)',
-          borderRadius: 'var(--sm-corner)',
-          py: 0.5,
-          px: 'var(--inline-gap)',
-        }}
-        onSubmit={handleOnSubmitForm}
-      >
-        <TextField
-          id="stand-name"
-          variant="standard"
-          label="استند جدید"
-          placeholder="استند شماره یک"
-          helperText={standNameErrorMessage}
-          error={isStandNameError}
-          value={standName}
-          onChange={handleOnStandName}
-          inputProps={{onFocus: handleOnFocusStandNameInput}}
-          sx={{maxWidth: '14rem', flex: '1 0 7rem'}}
-        />
-        <TextField
-          id="stand-ip"
-          variant="standard"
-          label="آی پی جدید"
-          placeholder="192.168.1.10"
-          helperText={ipNumErrorMessage}
-          error={isIpNumError}
-          value={ipNumString}
-          onChange={handleOnIpNumString}
-          inputProps={{onFocus: handleOnFocusIpNumInput}}
-          sx={{maxWidth: '14rem', flex: '1 0 7rem'}}
-        />
-        <TextField
-          id="stand-mac"
-          variant="standard"
-          label="مک آدرس جدید"
-          placeholder="3D:F2:C9:A2:B3:4F"
-          helperText={macAddressErrorMessage}
-          error={isMacAddressError}
-          value={macAddress}
-          onChange={handleOnMacAddress}
-          inputProps={{onFocus: handleOnFocusMacAddressInput}}
-          sx={{maxWidth: '14rem', flex: '1 0 7rem'}}
-        />
-
-        <SendButton
-          lableText="افزودن"
-          isSending={isSending}
-          isSuccess={isSent}
-          isError={isNewStandError}
-        />
-      </Grid>
-
-      <Notification
-        open={isNewStandError || isRegisteredNewStand}
-        onClose={setStatus}
-        isError={isNewStandError}
-        isSuccess={isRegisteredNewStand}
-        message={statusMsg}
-        autoHideDuration={4000}
-      />
-    </Box>
-  )
-}
-
-function Stand({id, name, ip, mac, online = true, deleteStandFn}) {
-  return (
-    <Paper
-      variant={online ? 'elevation' : 'outlined'}
-      elevation={5}
-      sx={{
-        minWidth: 140,
-        width: 140,
-        bgcolor: 'hsl(0 0% 90%)',
-        p: 1,
-      }}
-    >
-      <Box sx={{mb: 1}}>
-        <Typography variant="body2" sx={{fontWeight: 700}}>
-          {name}
-        </Typography>
-        <Typography variant="body2">{ip}</Typography>
-        <Typography variant="body2">{mac}</Typography>
-      </Box>
-
-      <ButtonGroup variant="contained" size="small">
-        <Button color={online ? 'success' : 'info'}>
-          {online ? <PlayArrowIcon /> : <StopIcon />}
-        </Button>
-        <Button color="error" onClick={() => deleteStandFn(id, name)}>
-          حذف
-        </Button>
-      </ButtonGroup>
-      <Box></Box>
-    </Paper>
   )
 }
