@@ -1,5 +1,6 @@
 import * as React from 'react'
-import useMediaFilesData from 'hook/useMediaFilesData'
+import useQueryData from 'hook/useQueryData'
+import {GET_FILE_LIST_API} from 'util/api-url'
 import Draggable from 'components/UI/draggable'
 import FileCard from 'components/UI/file-card'
 import Grid from '@mui/material/Grid'
@@ -13,7 +14,10 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import {generateListOfIndex} from 'util/helper-functions'
 
 export default function FilesGrid() {
-  const {data, isLoading, isSuccess} = useMediaFilesData()
+  const {data, isLoading, isSuccess} = useQueryData({
+    queryKey: ['media-files-data'],
+    url: GET_FILE_LIST_API,
+  })
 
   let filesData = []
 

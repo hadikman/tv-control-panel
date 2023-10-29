@@ -1,7 +1,7 @@
 import axiosClient from 'util/axios-http'
 import {useQuery} from '@tanstack/react-query'
 
-function useMediaFilesData({queryKey, url, body, enabled}) {
+function useQueryData({queryKey, url, body, enabled}) {
   const {
     data,
     dataUpdatedAt,
@@ -63,4 +63,4 @@ function useMediaFilesData({queryKey, url, body, enabled}) {
   }
 }
 
-export default useMediaFilesData
+export default useQueryData

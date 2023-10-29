@@ -1,7 +1,6 @@
 import * as React from 'react'
-import axiosClient from 'util/axios-http'
+import useQueryData from 'hook/useQueryData'
 import {SERVER_STATUS_API} from 'util/api-url'
-import {useQuery} from '@tanstack/react-query'
 import GaugeMeter from 'components/UI/gauge-meter'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
@@ -15,9 +14,9 @@ import {generateListOfIndex} from 'util/helper-functions'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 export default function HomePage({...props}) {
-  const {data, isLoading, isSuccess} = useQuery({
+  const {data, isLoading, isSuccess} = useQueryData({
     queryKey: ['server-status'],
-    queryFn: () => axiosClient.post(SERVER_STATUS_API).then(res => res.data),
+    url: SERVER_STATUS_API,
   })
 
   let serverStatusData = []

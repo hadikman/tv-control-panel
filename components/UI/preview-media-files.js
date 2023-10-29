@@ -1,8 +1,7 @@
 import * as React from 'react'
-import axiosClient from 'util/axios-http'
-import {DELETE_FILE_API} from 'util/api-url'
-import useMediaFilesData from 'hook/useMediaFilesData'
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import useQueryData from 'hook/useQueryData'
+import useMutateData from 'hook/useMutateData'
+import {GET_FILE_LIST_API, DELETE_FILE_API} from 'util/api-url'
 import FileCard from 'components/UI/file-card'
 import Notification from 'components/UI/notification'
 import Grid from '@mui/material/Grid'
@@ -14,18 +13,17 @@ import {generateListOfIndex} from 'util/helper-functions'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 export default function PreviewMediaFiles() {
-  const queryClient = useQueryClient()
-  const {data, isLoading, isSuccess} = useMediaFilesData()
+  const {data, isLoading, isSuccess} = useQueryData({
+    queryKey: ['media-files-data'],
+    url: GET_FILE_LIST_API,
+  })
   const {
     data: deleteFileResponse,
     mutate: mutateToDeleteFile,
     isSuccess: isDeletedSuccessfully,
-  } = useMutation({
-    mutationFn: file =>
-      axiosClient.post(DELETE_FILE_API, file).then(res => res.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['media-files-data']})
-    },
+  } = useMutateData({
+    url: DELETE_FILE_API,
+    queryKey: ['media-files-data'],
   })
   const [status, setStatus] = React.useState('')
 

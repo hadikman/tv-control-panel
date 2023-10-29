@@ -1,6 +1,6 @@
 import * as React from 'react'
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query'
-import axiosClient from 'util/axios-http'
+import useQueryData from 'hook/useQueryData'
+import useMutateData from 'hook/useMutateData'
 import {GET_ZONES_API, ADD_ZONE_API, DELETE_ZONE_API} from 'util/api-url'
 import ZoneCard from 'components/UI/zone-card'
 import SendButton from 'components/UI/send-button'
@@ -15,19 +15,15 @@ import {generateListOfIndex} from 'util/helper-functions'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
 
 export default function ZonesPage({...props}) {
-  const queryClient = useQueryClient()
-  const {data, isLoading, isSuccess} = useQuery({
+  const {data, isLoading, isSuccess} = useQueryData({
     queryKey: ['zones-data'],
-    queryFn: () => axiosClient.post(GET_ZONES_API).then(res => res.data),
+    url: GET_ZONES_API,
   })
 
   const {mutate: mutateToDeleteZone, isSuccess: isDeletedSuccessfully} =
-    useMutation({
-      mutationFn: zone =>
-        axiosClient.post(DELETE_ZONE_API, zone).then(res => res.data),
-      onSuccess: () => {
-        queryClient.invalidateQueries({queryKey: ['zones-data']})
-      },
+    useMutateData({
+      url: DELETE_ZONE_API,
+      queryKey: ['zones-data'],
     })
 
   const [status, setStatus] = React.useState('')
@@ -115,18 +111,14 @@ export default function ZonesPage({...props}) {
 }
 
 function NewZoneForm() {
-  const queryClient = useQueryClient()
   const {
     data: newZoneResponse,
     mutate: mutateToAddZone,
     isLoading: isSending,
     isSuccess: isAddedSuccessfully,
-  } = useMutation({
-    mutationFn: newZone =>
-      axiosClient.post(ADD_ZONE_API, newZone).then(res => res.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ['zones-data']})
-    },
+  } = useMutateData({
+    url: ADD_ZONE_API,
+    queryKey: ['zones-data'],
   })
   const [zoneName, setZoneName] = React.useState('')
   const [inputErrorMessage, setInputErrorMessage] = React.useState('')
