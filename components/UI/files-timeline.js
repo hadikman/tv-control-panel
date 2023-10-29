@@ -35,17 +35,9 @@ export default function FilesAndTimeline({sx, ...props}) {
   const [addedFiles, setAddedFiles] = React.useState([])
   const [status, setStatus] = React.useState('')
 
-  let timelineData = React.useMemo(() => [], [])
-
   const isAddedZone = status === 'added'
 
   const statusMsg = isAddedZone ? 'نوار زمان با موفقیت ذخیره گردید' : ''
-
-  if (isSuccess) {
-    if (data.success) {
-      timelineData = data.data
-    }
-  }
 
   React.useEffect(() => {
     if (isSuccess) {
