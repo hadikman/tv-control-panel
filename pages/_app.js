@@ -13,9 +13,9 @@ const cacheRtl = createCache({
   stylisPlugins: [rtlPlugin],
 })
 
-export default function App({Component, pageProps}) {
-  const queryClient = new QueryClient()
+const queryClient = new QueryClient()
 
+export default function App({Component, pageProps}) {
   return (
     <QueryClientProvider client={queryClient}>
       <CustomizedThemeProvider>
