@@ -5,7 +5,6 @@ import {useDropzone} from 'react-dropzone'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -161,18 +160,12 @@ function DropZone() {
   }
 
   return (
-    <Stack
+    <Box
       component="form"
       onSubmit={handleOnSubmitOnUploadedFiles}
       onReset={handleOnResetOnUploadedFiles}
-      sx={{
-        maxHeight: '10.5rem',
-        overflowY: 'auto',
-        pr: 1,
-        ...customVerticalScrollbar,
-      }}
     >
-      <Grid container spacing={1}>
+      <Grid container spacing={1} sx={{height: 168}}>
         <Grid item xs={12} md={5}>
           <Box
             sx={{
@@ -229,7 +222,20 @@ function DropZone() {
                 `${theme.transitions.create(['background-color'])}`,
             }}
           >
-            <List dense disablePadding sx={{width: '100%'}}>
+            <List
+              dense
+              disablePadding
+              sx={{
+                width: '100%',
+                maxHeight: 107,
+                pr: 1,
+                overflowY: 'auto',
+                ...customVerticalScrollbar,
+                '&::-webkit-scrollbar-track': {
+                  bgcolor: 'inherit',
+                },
+              }}
+            >
               {accpetedFileArr.map(({name}) => (
                 <ListItem
                   key={name}
@@ -299,6 +305,10 @@ function DropZone() {
                 >
                   {isRejectedFileArr
                     ? 'فایل‌های غیر مجاز را حذف نمایید.'
+                    : isSending
+                    ? `در حال بارگزاری ${
+                        isMultipleFile ? 'فایل‌ها' : 'فایل'
+                      } ...`
                     : `${
                         isMultipleFile
                           ? 'فایل‌ها مجاز می‌باشند.'
@@ -321,7 +331,7 @@ function DropZone() {
           </Grid>
         </Grid>
       </Grid>
-    </Stack>
+    </Box>
   )
 }
 

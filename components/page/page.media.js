@@ -13,14 +13,7 @@ export default function Media() {
 
       <Divider />
 
-      <Box
-        sx={{
-          bgcolor: 'hsl(0 0% 88%)',
-          borderRadius: 'var(--sm-corner)',
-          p: 2,
-          my: 2,
-        }}
-      >
+      <Box sx={{my: 2}}>
         <PreviewMediaFiles />
       </Box>
     </Box>

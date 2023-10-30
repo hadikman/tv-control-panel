@@ -5,6 +5,7 @@ import {GET_FILE_LIST_API, DELETE_FILE_API} from 'util/api-url'
 import FileCard from 'components/UI/file-card'
 import Notification from 'components/UI/notification'
 import Grid from '@mui/material/Grid'
+import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
@@ -65,68 +66,75 @@ export default function PreviewMediaFiles() {
   }
 
   return (
-    <Grid
-      container
+    <Box
       sx={{
-        '--card-size': '6rem',
-        '--gap': '6px',
-        minHeight: 'var(--card-size)',
-        maxHeight: '21rem',
-        gap: 'var(--gap)',
-        overflowY: 'auto',
-        ...customVerticalScrollbar,
+        bgcolor: 'hsl(0 0% 88%)',
+        borderRadius: 'var(--sm-corner)',
+        p: 2,
       }}
     >
-      {isLoading
-        ? generatedListOfIndex.map(item => (
-            <Grid key={item} item>
-              <Skeleton
-                variant="rounded"
-                width="var(--card-size)"
-                height="var(--card-size)"
-              />
-            </Grid>
-          ))
-        : isSuccess
-        ? filesData.map(({id, filename, duration, thumbnails}) => (
-            <FileCard
-              key={id}
-              filename={filename}
-              duration={duration}
-              thumbnails={thumbnails}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  flexGrow: 1,
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  pl: 0.5,
-                }}
+      <Grid
+        container
+        sx={{
+          '--card-size': '6rem',
+          '--gap': '6px',
+          height: 375,
+          gap: 'var(--gap)',
+          overflowY: 'auto',
+          ...customVerticalScrollbar,
+        }}
+      >
+        {isLoading
+          ? generatedListOfIndex.map(item => (
+              <Grid key={item} item>
+                <Skeleton
+                  variant="rounded"
+                  width="var(--card-size)"
+                  height="var(--card-size)"
+                />
+              </Grid>
+            ))
+          : isSuccess
+          ? filesData.map(({id, filename, duration, thumbnails}) => (
+              <FileCard
+                key={id}
+                filename={filename}
+                duration={duration}
+                thumbnails={thumbnails}
               >
-                {filename}
-              </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    flexGrow: 1,
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    pl: 0.5,
+                  }}
+                >
+                  {filename}
+                </Typography>
 
-              <IconButton
-                size="small"
-                color="error"
-                onClick={() => handleDeleteFile(id, filename)}
-              >
-                <ClearIcon fontSize="small" />
-              </IconButton>
-            </FileCard>
-          ))
-        : null}
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={() => handleDeleteFile(id, filename)}
+                >
+                  <ClearIcon fontSize="small" />
+                </IconButton>
+              </FileCard>
+            ))
+          : null}
 
-      <Notification
-        open={isDeletedFile || isUsedFile}
-        onClose={setStatus}
-        isError={isUsedFile}
-        isSuccess={isDeletedFile}
-        message={statusMsg}
-        autoHideDuration={3500}
-      />
-    </Grid>
+        <Notification
+          open={isDeletedFile || isUsedFile}
+          onClose={setStatus}
+          isError={isUsedFile}
+          isSuccess={isDeletedFile}
+          message={statusMsg}
+          autoHideDuration={3500}
+        />
+      </Grid>
+    </Box>
   )
 }
