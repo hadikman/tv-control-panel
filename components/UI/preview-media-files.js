@@ -17,6 +17,8 @@ export default function PreviewMediaFiles() {
   const {data, isLoading, isSuccess} = useQueryData({
     queryKey: ['media-files-data'],
     url: GET_FILE_LIST_API,
+    staleTime: 'Infinity',
+    refetchOnWindowFocus: false,
   })
   const {
     data: deleteFileResponse,
