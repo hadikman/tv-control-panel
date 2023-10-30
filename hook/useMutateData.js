@@ -2,20 +2,21 @@ import axiosClient from 'util/axios-http'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 
 function useMutateData({
+  queryKey,
+  url,
+  axiosConfig,
   mutationKey,
-  //   mutationFn,
+  mutationFn,
   cacheTime,
   networkMode,
   onError,
   onMutate,
   onSettled,
-  //   onSuccess,
+  onSuccess,
   retry,
   retryDelay,
   useErrorBoundary,
   meta,
-  queryKey,
-  url,
 }) {
   const queryClient = useQueryClient()
 
@@ -35,15 +36,19 @@ function useMutateData({
     status,
   } = useMutation({
     mutationKey,
-    mutationFn: item => axiosClient.post(url, item).then(res => res.data),
+    mutationFn:
+      mutationFn ||
+      (body => axiosClient.post(url, body, axiosConfig).then(res => res.data)),
     cacheTime,
     networkMode,
     onError,
     onMutate,
     onSettled,
-    onSuccess: () => {
-      queryClient.invalidateQueries({queryKey})
-    },
+    onSuccess:
+      onSuccess ||
+      (() => {
+        queryClient.invalidateQueries({queryKey})
+      }),
     retry,
     retryDelay,
     useErrorBoundary,
