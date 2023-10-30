@@ -78,7 +78,7 @@ export default function PreviewMediaFiles() {
         sx={{
           '--card-size': '6rem',
           '--gap': '6px',
-          height: 375,
+          height: 359,
           gap: 'var(--gap)',
           overflowY: 'auto',
           ...customVerticalScrollbar,

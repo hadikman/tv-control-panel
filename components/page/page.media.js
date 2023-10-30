@@ -13,7 +13,7 @@ export default function Media() {
 
       <Divider />
 
-      <Box sx={{my: 2}}>
+      <Box sx={{mt: 2}}>
         <PreviewMediaFiles />
       </Box>
     </Box>
