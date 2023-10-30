@@ -1,8 +1,7 @@
 import * as React from 'react'
-import axiosClient from 'util/axios-http'
+import useMutateData from 'hook/useMutateData'
 import {UPLOAD_FILE_API} from 'util/api-url'
 import {useDropzone} from 'react-dropzone'
-import {useMutation, useQueryClient} from '@tanstack/react-query'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
@@ -59,22 +58,15 @@ function filenameValidator(file) {
 }
 
 function DropZone() {
-  const queryClient = useQueryClient()
-  const {mutate, isLoading: isSending} = useMutation({
-    mutationFn: newFormData =>
-      axiosClient
-        .post(UPLOAD_FILE_API, newFormData, {
-          timeout: UPLOAD_TIMEOUT,
-        })
-        .then(res => res.data),
-    onSuccess: data => {
-      queryClient.invalidateQueries({queryKey: ['media-files-data']})
-
-      if (data.success) {
-        setAcceptedFileArr([])
-        setIsUploaded(true)
-      }
-    },
+  const {
+    mutate,
+    data: mutateToUploadFile,
+    isLoading: isSending,
+    isSuccess: isUploadedSuccessfully,
+  } = useMutateData({
+    url: UPLOAD_FILE_API,
+    queryKey: ['media-files-data'],
+    axiosConfig: {timeout: UPLOAD_TIMEOUT},
   })
   const [accpetedFileArr, setAcceptedFileArr] = React.useState([])
   const [rejectedFileArr, setRejectedFileArr] = React.useState([])
@@ -122,6 +114,15 @@ function DropZone() {
     onDrop,
     validator: filenameValidator,
   })
+
+  React.useEffect(() => {
+    if (isUploadedSuccessfully) {
+      if (mutateToUploadFile.success) {
+        setAcceptedFileArr([])
+        setIsUploaded(true)
+      }
+    }
+  }, [isUploadedSuccessfully, mutateToUploadFile])
 
   React.useEffect(() => {
     let timeout
