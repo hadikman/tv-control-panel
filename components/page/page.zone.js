@@ -23,7 +23,6 @@ import AddIcon from '@mui/icons-material/Add'
 import ClearIcon from '@mui/icons-material/Clear'
 import SaveIcon from '@mui/icons-material/Save'
 import {customVerticalScrollbar} from 'util/scrollbar-group'
-import VAZIRMATN_FONT from 'util/share-font'
 
 export default function Zone() {
   const router = useRouter()
@@ -140,11 +139,7 @@ export default function Zone() {
           مدیریت استندها
         </Button>
 
-        <Modal
-          className={VAZIRMATN_FONT.className}
-          open={openModal}
-          onClose={handleCloseStandsManagementModal}
-        >
+        <Modal open={openModal} onClose={handleCloseStandsManagementModal}>
           <Box
             sx={{
               width: '95%',
